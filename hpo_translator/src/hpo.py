@@ -13,7 +13,7 @@ def get_subclasses(hpo: pronto.Ontology, hpo_id: str, with_self: bool = True):
     return [getattr(node, "id") for node in term.subclasses(with_self=with_self)]
 
 
-def term_text(hpo: pronto.Ontology, hpo_id: str, just_labels: bool = False):
+def term_text(hpo: pronto.Ontology, hpo_id: str, just_labels: bool):
     """
     Obtains a dictionary with the attributes containing text.
     """
@@ -57,7 +57,7 @@ class HPOCorpus(Dataset):
     def __getitem__(self, idx):
         return self.terms[idx, "index"], self.terms[idx, "text"]
 
-    def _prep_terms(self, hpo: pronto.Ontology, hpo_id: str, just_labels: bool = False):
+    def _prep_terms(self, hpo: pronto.Ontology, hpo_id: str, just_labels: bool):
         """
         Prepare terms as dictionaries of strings, with list items
         expanding as multiple keys.
