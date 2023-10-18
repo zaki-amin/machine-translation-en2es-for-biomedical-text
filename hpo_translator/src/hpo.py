@@ -87,12 +87,21 @@ class HPOCorpus(Dataset):
         self.trans.extend(pl.DataFrame({"index": idxs, "text": text}))
 
     def save_pairs(self, out_dir: str):
-        pairs = (
+        pairs = self.translation_pairs()
+        Path(out_dir).mkdir(parents=True, exist_ok=True)
+        excel_path = Path(out_dir, "hpo_translation.xlsx").as_posix()
+        pairs.write_excel(excel_path, autofit=True)
+
+    def save_labels(self, out_dir: str):
+        pairs = self.translation_pairs()
+        Path(out_dir).mkdir(parents=True, exist_ok=True)
+        excel_path = Path(out_dir, "hpo_translation.xlsx").as_posix()
+        pairs[0].write_excel(excel_path, autofit=True)
+
+    def translation_pairs(self):
+        return (
             self.terms.join(self.trans, on=["index"], suffix="_trans")
             .rename({"text": "english", "text_trans": "spanish"})
             .select(["id", "english", "spanish"])
             .filter(pl.col("english").str.strip().str.to_lowercase() != "none")
         )
-        Path(out_dir).mkdir(parents=True, exist_ok=True)
-        excel_path = Path(out_dir, "hpo_translation.xlsx").as_posix()
-        pairs.write_excel(excel_path, autofit=True)
