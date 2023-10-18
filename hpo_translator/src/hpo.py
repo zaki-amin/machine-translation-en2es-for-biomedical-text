@@ -13,13 +13,14 @@ def get_subclasses(hpo: pronto.Ontology, hpo_id: str, with_self: bool = True):
     return [getattr(node, "id") for node in term.subclasses(with_self=with_self)]
 
 
-def term_text(hpo: pronto.Ontology, hpo_id: str):
+def term_text(hpo: pronto.Ontology, hpo_id: str, just_labels: bool = False):
     """
     Obtains a dictionary with the attributes containing text.
     """
     term_dict = {}
     term = hpo.get_term(hpo_id)
-    for k in ("name", "definition", "comment", "synonyms"):
+    attributes = ["name"] if just_labels else ("name", "definition", "comment", "synonyms")
+    for k in attributes:
         if k != "synonyms":
             term_dict[k] = str(getattr(term, k))
         else:
@@ -42,12 +43,12 @@ class HPOCorpus(Dataset):
             be included.
     """
 
-    def __init__(self, hpo_id: str = "HP:0000001"):
+    def __init__(self, hpo_id: str = "HP:0000001", just_labels: bool = False):
         # Load the ontology
         hpo = pronto.Ontology.from_obo_library("hp.obo")
 
         # Get the IDs and terms to include
-        self._prep_terms(hpo, hpo_id)
+        self._prep_terms(hpo, hpo_id, just_labels)
         self.trans = pl.DataFrame(schema={"index": pl.Int64, "text": pl.Utf8})
 
     def __len__(self):
@@ -56,7 +57,7 @@ class HPOCorpus(Dataset):
     def __getitem__(self, idx):
         return self.terms[idx, "index"], self.terms[idx, "text"]
 
-    def _prep_terms(self, hpo: pronto.Ontology, hpo_id: str):
+    def _prep_terms(self, hpo: pronto.Ontology, hpo_id: str, just_labels: bool = False):
         """
         Prepare terms as dictionaries of strings, with list items
         expanding as multiple keys.
@@ -66,7 +67,7 @@ class HPOCorpus(Dataset):
 
         terms = []
         for hpo_id in self.ids:
-            term_dict = term_text(hpo, hpo_id)
+            term_dict = term_text(hpo, hpo_id, just_labels)
             term = {}
             for key, val in term_dict.items():
                 if isinstance(val, list):
@@ -91,12 +92,6 @@ class HPOCorpus(Dataset):
         Path(out_dir).mkdir(parents=True, exist_ok=True)
         excel_path = Path(out_dir, "hpo_translation.xlsx").as_posix()
         pairs.write_excel(excel_path, autofit=True)
-
-    def save_labels(self, out_dir: str):
-        pairs = self.translation_pairs()
-        Path(out_dir).mkdir(parents=True, exist_ok=True)
-        excel_path = Path(out_dir, "hpo_translation.xlsx").as_posix()
-        pairs[0].write_excel(excel_path, autofit=True)
 
     def translation_pairs(self):
         return (

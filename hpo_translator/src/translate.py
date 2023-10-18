@@ -132,7 +132,7 @@ def translate_labels(
     model.to(device)
 
     # HPO dataset
-    dataset = HPOCorpus(hpo_id)
+    dataset = HPOCorpus(hpo_id, just_labels=True)
     data_loader = DataLoader(dataset, batch_size=batch_size, collate_fn=collate_fn)
     with torch.no_grad():
         for idxs, inputs in tqdm(data_loader, desc="Translating HPO"):
@@ -141,6 +141,6 @@ def translate_labels(
 
     # Save the pairs as an Excel
     out_dir = os.getcwd() if out_dir is None else out_dir
-    dataset.save_labels(out_dir)
+    dataset.save_pairs(out_dir)
 
     return dataset
