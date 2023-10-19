@@ -21,3 +21,7 @@ def evaluate_translation(hpo_id: str, spreadsheet: str, labels: bool):
     merged_df = pd.merge(model_df, official_df, on='hpo_id', how='inner')
     merged_df['match'] = merged_df['spanish'] == merged_df['etiqueta']
     print(merged_df)
+
+    num_translations = merged_df.shape[0]
+    model_accuracy = merged_df['match'].value_counts()[True] / num_translations
+    print("Model accuracy: {:.2%}".format(model_accuracy))
