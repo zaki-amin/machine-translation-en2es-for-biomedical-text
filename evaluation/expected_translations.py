@@ -7,5 +7,5 @@ def read_official_translations():
     unnecessary_columns = ['source_language', 'translation_language', 'source_value',
                            'predicate_id', 'translation_status']
     df = df.drop(columns=unnecessary_columns)
-    df = df.rename(columns={'subject_id': 'hpo_id', 'translation_value': 'etiqueta'})
+    df = df.rename(columns={'subject_id': 'hpo_id', 'translation_value': 'etiqueta oficial'})
     return df
