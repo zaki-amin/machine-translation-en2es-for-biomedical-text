@@ -1,3 +1,5 @@
+from enum import Enum
+
 from evaluation.expected_translations import read_official_translations
 from hpo_translator.src.translate import translate_hpo
 import pandas as pd
@@ -40,3 +42,24 @@ def save_to_csv(df):
     file_path = 'model_evaluation.csv'
     df.to_csv(file_path, index=False)
     print(f'CSV file "{file_path}" has been created.')
+
+
+class TranslateChoice(Enum):
+    LABELS = 1
+    DEFINITIONS = 2
+    SYNONYMS = 3
+    ALL = 4
+
+    def attribute_list(self):
+        match self:
+            case TranslateChoice.LABELS:
+                return ["name"]
+            case TranslateChoice.DEFINITIONS:
+                return ["definition"]
+            case TranslateChoice.SYNONYMS:
+                return ["synonyms"]
+            case TranslateChoice.ALL:
+                return ["name", "definition", "synonyms", "comment"]
+
+
+

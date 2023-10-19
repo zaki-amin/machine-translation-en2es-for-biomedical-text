@@ -2,7 +2,7 @@ from collections import defaultdict
 
 import torch
 from pytorch_lightning import LightningModule
-from torchmetrics import SacreBLEUScore, TranslationEditRate
+from torchmetrics.text import SacreBLEUScore, TranslationEditRate
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
 ModelInputs = dict[str, torch.Tensor]
