@@ -13,6 +13,12 @@ class WikidataHPO:
 
 
 def parse_wikidata_json(filename: str) -> Dict[str, WikidataHPO]:
+    # Write a docstring for this function
+    """
+    This function reads a JSON file of Wikidata translations and returns a dictionary of WikidataHPO objects.
+    :param filename: The name of the JSON file to read.
+    :return: A dictionary of WikidataHPO objects.
+    """
     with open(filename, "r") as file:
         data = json.load(file)
 
@@ -27,4 +33,4 @@ def parse_wikidata_json(filename: str) -> Dict[str, WikidataHPO]:
 
 
 if __name__ == "__main__":
-    print(parse_wikidata_json("sample.json"))
+    print(parse_wikidata_json("queries/wikidata.json"))

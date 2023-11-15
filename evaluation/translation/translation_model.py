@@ -3,7 +3,7 @@ import pandas as pd
 from hpo_translator.src.translate import translate_hpo
 
 
-def model_results(hpo_id, labels, spreadsheet) -> pd.DataFrame:
+def model_results(hpo_id: str, labels: bool, spreadsheet: str | None) -> pd.DataFrame:
     if spreadsheet is None:
         print("---Generating model translations---")
         translate_hpo(hpo_id, only_labels=labels)

@@ -1,15 +1,25 @@
+import argparse
+
 import pandas as pd
 
 from evaluation.translation.translation_model import model_results
 from evaluation.wikidata.data_loading import parse_wikidata_json, WikidataHPO
 
 
-def evaluate_translation(hpo_id: str, just_labels: bool, spreadsheet: str):
+def evaluate_translation(hpo_id: str, just_labels: bool, wiki_translations_filename: str, spreadsheet: str = None):
+    """
+    Evaluate model translations from the given HPO term against the Wikidata translations.
+    :param hpo_id: The HPO term to begin the translations from
+    :param just_labels: A flag to translate only the labels of the HPO terms
+    :param wiki_translations_filename: The name of the JSON file of Wikidata translations
+    :param spreadsheet: The name of the spreadsheet of model translations if already generated
+    :return:
+    """
     model_df: pd.DataFrame = model_results(hpo_id, just_labels, spreadsheet)
-    wikidata_translations: dict[str, WikidataHPO] = parse_wikidata_json("sample.json")
+    wikidata_translations: dict[str, WikidataHPO] = parse_wikidata_json(wiki_translations_filename)
 
-    name_hits, total_names = 0, 0
-    synonym_hits, total_synonyms = 0, 0
+    name_hits, name_absent, total_names = 0, 0, 0
+    synonym_hits, synonym_absent, total_synonyms = 0, 0, 0
 
     for index, row in model_df.iterrows():
         id = row['hpo_id']
@@ -19,16 +29,20 @@ def evaluate_translation(hpo_id: str, just_labels: bool, spreadsheet: str):
         match row['kind']:
             case 'name':
                 total_names += 1
-                if wikidata_translation is not None and model_translation == wikidata_translation.etiqueta:
-                    name_hits += 1
+                if wikidata_translation is None:
+                    name_absent += 1
+                else:
+                    name_hits += 1 if model_translation == wikidata_translation.etiqueta else 0
             case 'synonym':
                 total_synonyms += 1
-                if wikidata_translation is not None and model_translation in wikidata_translation.sinónimas:
-                    synonym_hits += 1
+                if wikidata_translation is None:
+                    synonym_absent += 1
+                else:
+                    synonym_hits += 1 if model_translation in wikidata_translation.sinónimas else 0
 
-    print(name_hits, total_names)
-    print(synonym_hits, total_synonyms)
+    print(f"Total names: {total_names}, Matches: {name_hits}, Absent: {name_absent}")
+    print(f"Total synonyms: {total_synonyms}, Matches: {synonym_hits}, Absent: {synonym_absent}")
 
 
 if __name__ == "__main__":
-    evaluate_translation("HP:0000024", True, "../hpo_translation.xlsx")
+    evaluate_translation("HP:0040279", True, "queries/wikidata.json", "../hpo_translation.xlsx")
