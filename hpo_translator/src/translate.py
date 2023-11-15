@@ -92,6 +92,12 @@ def translate_hpo(
             results = model.generate(inputs)
             dataset.set_trans(idxs, results)
 
+    for i in range(len(dataset.terms)):
+        if "synonym" in dataset.terms[i, "header"]:
+            dataset.trans[i, "kind"] = "synonym"
+        else:
+            dataset.trans[i, "kind"] = dataset.terms[i, "header"]
+
     # Save the pairs as an Excel
     out_dir = os.getcwd() if out_dir is None else out_dir
     dataset.save_pairs(out_dir)

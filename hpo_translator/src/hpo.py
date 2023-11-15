@@ -49,7 +49,7 @@ class HPOCorpus(Dataset):
 
         # Get the IDs and terms to include
         self._prep_terms(hpo, hpo_id, just_labels)
-        self.trans = pl.DataFrame(schema={"index": pl.Int64, "text": pl.Utf8})
+        self.trans = pl.DataFrame(schema={"index": pl.Int64, "text": pl.Utf8, "kind": pl.Utf8})
 
     def __len__(self):
         return len(self.terms)
@@ -84,8 +84,8 @@ class HPOCorpus(Dataset):
             .with_columns(pl.col("index").cast(pl.Int64))
         )
 
-    def set_trans(self, idxs: int | list[int], text: str | list[str]):
-        self.trans.extend(pl.DataFrame({"index": idxs, "text": text}))
+    def set_trans(self, idxs: int | list[int], text: str | list[str], kind: str | list[str] = "definition"):
+        self.trans.extend(pl.DataFrame({"index": idxs, "text": text, "kind": kind}))
 
     def save_pairs(self, out_dir: str):
         pairs = self.translation_pairs()
@@ -97,6 +97,6 @@ class HPOCorpus(Dataset):
         return (
             self.terms.join(self.trans, on=["index"], suffix="_trans")
             .rename({"text": "english", "text_trans": "spanish"})
-            .select(["id", "english", "spanish"])
+            .select(["id", "english", "spanish", "kind"])
             .filter(pl.col("english").str.strip().str.to_lowercase() != "none")
         )
