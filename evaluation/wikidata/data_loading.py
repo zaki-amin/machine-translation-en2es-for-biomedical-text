@@ -9,7 +9,7 @@ class WikidataHPO:
     label: str
     etiqueta: str
     synonyms: Set[str]
-    sinonimas: Set[str]
+    sinónimas: Set[str]
 
 
 def parse_wikidata_json(filename: str) -> Dict[str, WikidataHPO]:
@@ -22,7 +22,7 @@ def parse_wikidata_json(filename: str) -> Dict[str, WikidataHPO]:
                                           label=data[hpo_id]["term_en"],
                                           etiqueta=data[hpo_id]["term_es"],
                                           synonyms=set(data[hpo_id]["synonyms_en"]),
-                                          sinonimas=set(data[hpo_id]["synonyms_es"]))
+                                          sinónimas=set(data[hpo_id]["synonyms_es"]))
     return hpo_objects
 
 
