@@ -20,6 +20,7 @@ def evaluate_translation(hpo_id: str, just_labels: bool, wiki_translations_filen
 
     name_hits, name_absent, total_names = 0, 0, 0
     synonym_hits, synonym_absent, total_synonyms = 0, 0, 0
+    failures = {}
 
     for index, row in model_df.iterrows():
         id = row['hpo_id']
@@ -32,8 +33,14 @@ def evaluate_translation(hpo_id: str, just_labels: bool, wiki_translations_filen
                 if wikidata_translation is None:
                     name_absent += 1
                 else:
-                    name_hits += 1 if model_translation == wikidata_translation.etiqueta else 0
+                    if model_translation == wikidata_translation.etiqueta:
+                        name_hits += 1
+                    else:
+                        failures[id] = (model_translation, wikidata_translation.etiqueta)
             case 'synonym':
+                if just_labels:
+                    continue
+
                 total_synonyms += 1
                 if wikidata_translation is None:
                     synonym_absent += 1
@@ -42,7 +49,8 @@ def evaluate_translation(hpo_id: str, just_labels: bool, wiki_translations_filen
 
     print(f"Total names: {total_names}, Matches: {name_hits}, Absent: {name_absent}")
     print(f"Total synonyms: {total_synonyms}, Matches: {synonym_hits}, Absent: {synonym_absent}")
+    print(failures)
 
 
 if __name__ == "__main__":
-    evaluate_translation("HP:0040279", True, "queries/wikidata.json", "../hpo_translation.xlsx")
+    evaluate_translation("HP:0000034", True, "queries/wikidata.json", None)
