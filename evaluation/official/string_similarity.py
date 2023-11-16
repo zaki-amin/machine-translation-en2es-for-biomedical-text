@@ -10,6 +10,7 @@ class SimilarityMetric(Enum):
     """Enum for string similarity metrics."""
     BLEU = 0
     SIMPLE_MATCH = 1
+    EDIT_DISTANCE = 2
 
     def evaluate(self, reference: str, candidate: str) -> float:
         """Evaluate the given string similarity metric between two strings."""
@@ -23,7 +24,10 @@ class SimilarityMetric(Enum):
             case SimilarityMetric.SIMPLE_MATCH:
                 return 1 if reference == candidate else 0
 
+            case SimilarityMetric.EDIT_DISTANCE:
+                return 1 - nltk.edit_distance(reference, candidate) / max(len(reference), len(candidate))
+
 
 if __name__ == "__main__":
-    metric = SimilarityMetric.BLEU
+    metric = SimilarityMetric.EDIT_DISTANCE
     print(metric.evaluate("Frecuencia", "Frecuencia"))
