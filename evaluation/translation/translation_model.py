@@ -3,10 +3,10 @@ import pandas as pd
 from hpo_translator.src.translate import translate_hpo
 
 
-def model_results(hpo_id: str, labels: bool, spreadsheet: str | None) -> pd.DataFrame:
+def model_results(hpo_id: str, out_dir: str | None, labels: bool, spreadsheet: str | None) -> pd.DataFrame:
     if spreadsheet is None:
         print("---Generating model translations---")
-        translate_hpo(hpo_id, only_labels=labels)
+        translate_hpo(hpo_id, out_dir=out_dir, only_labels=labels)
         result_file = 'hpo_translation.xlsx'
     else:
         print("---Reading model translations---")
