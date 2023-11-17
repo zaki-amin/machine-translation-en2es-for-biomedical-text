@@ -1,3 +1,4 @@
+import string
 from enum import Enum
 
 import nltk
@@ -13,7 +14,12 @@ class SimilarityMetric(Enum):
     EDIT_DISTANCE = 2
 
     def evaluate(self, reference: str, candidate: str) -> float:
-        """Evaluate the given string similarity metric between two strings."""
+        """Evaluate the given string similarity metric between two strings.
+        Performs simple string cleaning for whitespace and punctuation.
+        """
+        reference = reference.strip(string.punctuation).strip()
+        candidate = candidate.strip(string.punctuation).strip()
+
         match self:
             case SimilarityMetric.BLEU:
                 reference_tokens = nltk.word_tokenize(reference.lower())

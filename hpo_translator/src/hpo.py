@@ -97,6 +97,6 @@ class HPOCorpus(Dataset):
         return (
             self.terms.join(self.trans, on=["index"], suffix="_trans")
             .rename({"text": "english", "text_trans": "spanish"})
-            .select(["id", "english", "spanish", "kind"])
+            .select(["id", "kind", "english", "spanish"])
             .filter(pl.col("english").str.strip().str.to_lowercase() != "none")
         )
