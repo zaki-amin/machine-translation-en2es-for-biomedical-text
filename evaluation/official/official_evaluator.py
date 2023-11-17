@@ -4,16 +4,15 @@ from evaluation.translation.translation_model import model_results
 import pandas as pd
 
 
-def evaluate_translation(hpo_id: str, spreadsheet: str, labels: bool):
-    print("---Generating model translations---")
-    model_df = model_results(hpo_id, "../official", labels, spreadsheet)
+def evaluate_translation(hpo_id: str, similarity: str, labels: bool):
+    model_df = model_results(hpo_id, labels)
 
     print("---Reading official translations---")
     official_df = read_official_translations()
 
-    merged_df = combine_translations(model_df, official_df, SimilarityMetric.BLEU)
+    merged_df = combine_translations(model_df, official_df, SimilarityMetric[similarity.upper()])
     display_accuracy(merged_df)
-    save_to_csv(merged_df)
+    save_to_csv(merged_df, "/Users/zaki/PycharmProjects/hpo_evaluation/evaluation/results/official", hpo_id)
 
 
 def combine_translations(model_df: pd.DataFrame, official_df: pd.DataFrame, metric: SimilarityMetric):
@@ -32,7 +31,7 @@ def display_accuracy(df):
     print("Model accuracy: {:.2%}".format(model_accuracy))
 
 
-def save_to_csv(df):
-    file_path = 'model_evaluation.csv'
+def save_to_csv(df: pd.DataFrame, folder_path: str, hpo_id: str):
+    file_path = f"{folder_path}/{hpo_id}.csv"
     df.to_csv(file_path, index=False)
     print(f'CSV file "{file_path}" has been created.')

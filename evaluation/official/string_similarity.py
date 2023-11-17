@@ -9,7 +9,7 @@ nltk.download('punkt')
 class SimilarityMetric(Enum):
     """Enum for string similarity metrics."""
     BLEU = 0
-    SIMPLE_MATCH = 1
+    SIMPLE = 1
     EDIT_DISTANCE = 2
 
     def evaluate(self, reference: str, candidate: str) -> float:
@@ -21,7 +21,7 @@ class SimilarityMetric(Enum):
                 return sentence_bleu([reference_tokens], candidate_tokens,
                                      smoothing_function=SmoothingFunction().method1)
 
-            case SimilarityMetric.SIMPLE_MATCH:
+            case SimilarityMetric.SIMPLE:
                 return 1 if reference == candidate else 0
 
             case SimilarityMetric.EDIT_DISTANCE:

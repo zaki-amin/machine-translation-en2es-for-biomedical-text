@@ -48,7 +48,7 @@ def translate(
 
 def translate_hpo(
         hpo_id: str,
-        out_dir: str = None,
+        out_dir: str = "/Users/zaki/PycharmProjects/hpo_evaluation/evaluation/model_translations",
         model_checkpoint: str = Path(ROOT_DIR, "marianmt_clinical.ckpt").as_posix(),
         config: NMTModelConfig = MarianMTConfig(),
         batch_size: int = 32,
@@ -100,6 +100,6 @@ def translate_hpo(
 
     # Save the pairs as an Excel
     out_dir = os.getcwd() if out_dir is None else out_dir
-    dataset.save_pairs(out_dir)
+    dataset.save_pairs(out_dir, hpo_id + ".xlsx")
 
     return dataset

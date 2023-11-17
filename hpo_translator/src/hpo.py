@@ -87,10 +87,10 @@ class HPOCorpus(Dataset):
     def set_trans(self, idxs: int | list[int], text: str | list[str], kind: str | list[str] = "definition"):
         self.trans.extend(pl.DataFrame({"index": idxs, "text": text, "kind": kind}))
 
-    def save_pairs(self, out_dir: str):
+    def save_pairs(self, out_dir: str, filename: str = "hpo_translation.xlsx"):
         pairs = self.translation_pairs()
         Path(out_dir).mkdir(parents=True, exist_ok=True)
-        excel_path = Path(out_dir, "hpo_translation.xlsx").as_posix()
+        excel_path = Path(out_dir, filename).as_posix()
         pairs.write_excel(excel_path, autofit=True)
 
     def translation_pairs(self):

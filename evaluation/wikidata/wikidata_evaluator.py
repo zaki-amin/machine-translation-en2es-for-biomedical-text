@@ -1,5 +1,3 @@
-import argparse
-
 import pandas as pd
 
 from evaluation.translation.translation_model import model_results
@@ -15,7 +13,7 @@ def evaluate_translation(hpo_id: str, just_labels: bool, wiki_translations_filen
     :param spreadsheet: The name of the spreadsheet of model translations if already generated
     :return:
     """
-    model_df: pd.DataFrame = model_results(hpo_id, just_labels, spreadsheet)
+    model_df: pd.DataFrame = model_results(hpo_id, just_labels)
     wikidata_translations: dict[str, WikidataHPO] = parse_wikidata_json(wiki_translations_filename)
 
     name_hits, name_absent, total_names = 0, 0, 0
@@ -49,7 +47,7 @@ def evaluate_translation(hpo_id: str, just_labels: bool, wiki_translations_filen
 
     print(f"Total names: {total_names}, Matches: {name_hits}, Absent: {name_absent}")
     print(f"Total synonyms: {total_synonyms}, Matches: {synonym_hits}, Absent: {synonym_absent}")
-    print(failures)
+    print(f"Failures: {failures}")
 
 
 if __name__ == "__main__":
