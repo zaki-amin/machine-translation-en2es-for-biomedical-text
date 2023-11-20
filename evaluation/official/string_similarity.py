@@ -3,8 +3,10 @@ from enum import Enum
 
 import nltk
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
+from sentence_transformers import SentenceTransformer, util
 
-nltk.download('punkt')
+# nltk.download('punkt')
+similarity_model = SentenceTransformer("paraphrase-multilingual-mpnet-base-v2")
 
 
 class SimilarityMetric(Enum):
@@ -12,6 +14,7 @@ class SimilarityMetric(Enum):
     BLEU = 0
     SIMPLE = 1
     EDIT_DISTANCE = 2
+    SEMANTIC_SIMILARITY = 3
 
     def evaluate(self, reference: str, candidate: str) -> float:
         """Evaluate the given string similarity metric between two strings.
@@ -33,7 +36,13 @@ class SimilarityMetric(Enum):
             case SimilarityMetric.EDIT_DISTANCE:
                 return 1 - nltk.edit_distance(reference, candidate) / max(len(reference), len(candidate))
 
+            case SimilarityMetric.SEMANTIC_SIMILARITY:
+                query_embedding = similarity_model.encode(reference)
+                passage_embedding = similarity_model.encode(candidate)
+                cosine_similarity = util.cos_sim(query_embedding, passage_embedding)
+                return cosine_similarity[0].item()
+
 
 if __name__ == "__main__":
-    metric = SimilarityMetric.EDIT_DISTANCE
-    print(metric.evaluate("Frecuencia", "Frecuencia"))
+    metric = SimilarityMetric.SEMANTIC_SIMILARITY
+    print(metric.evaluate("Frecuencia del día", "Frecuencia diario"))
