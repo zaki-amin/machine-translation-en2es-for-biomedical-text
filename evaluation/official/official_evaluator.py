@@ -10,9 +10,11 @@ def evaluate_translation(hpo_id: str, labels: bool):
     print("---Reading official translations---")
     official_df = read_official_translations()
 
+    print("---Comparing translations---")
     merged_df = combine_translations(model_df, official_df)
     display_accuracy(merged_df)
-    save_to_csv(merged_df, "/Users/zaki/PycharmProjects/hpo_evaluation/evaluation/results/official", hpo_id)
+    content_discrepancy(merged_df)
+    save_to_csv(merged_df, "/Users/zaki/PycharmProjects/hpo_evaluation/files/results/official", hpo_id)
 
 
 def combine_translations(model_df: pd.DataFrame, official_df: pd.DataFrame):
@@ -21,7 +23,6 @@ def combine_translations(model_df: pd.DataFrame, official_df: pd.DataFrame):
         merged_df[metric.name] = merged_df.apply(
             lambda row: metric.evaluate(row['etiqueta oficial'], row['traducción modelo']),
             axis=1)
-
 
     return merged_df
 
@@ -33,9 +34,13 @@ def display_accuracy(df):
     for metric in SimilarityMetric:
         print(f"\nMetric: {metric.name}")
         score = df[metric.name].sum()
-        model_accuracy = score / num_translations
-        print(f"Score: {score}")
-        print("Model accuracy: {:.2%}".format(model_accuracy))
+        model_performance = score / num_translations
+        print(f"Score: {score} / {num_translations}")
+        print("Model performance: {:.2%}".format(model_performance))
+
+
+def content_discrepancy(merged_df):
+    pass
 
 
 def save_to_csv(df: pd.DataFrame, folder_path: str, hpo_id: str):

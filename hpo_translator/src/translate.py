@@ -48,7 +48,7 @@ def translate(
 
 def translate_hpo(
         hpo_id: str,
-        out_dir: str = "/Users/zaki/PycharmProjects/hpo_evaluation/evaluation/model_translations",
+        out_dir: str = "/Users/zaki/PycharmProjects/hpo_evaluation/files/model_translations",
         model_checkpoint: str = Path(ROOT_DIR, "marianmt_clinical.ckpt").as_posix(),
         config: NMTModelConfig = MarianMTConfig(),
         batch_size: int = 32,

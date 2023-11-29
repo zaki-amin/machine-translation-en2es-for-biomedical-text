@@ -5,7 +5,7 @@ from hpo_translator.src.translate import translate_hpo
 
 
 def model_results(hpo_id: str, labels: bool) -> pd.DataFrame:
-    filename = f"/Users/zaki/PycharmProjects/hpo_evaluation/evaluation/model_translations/{hpo_id}.xlsx"
+    filename = f"/Users/zaki/PycharmProjects/hpo_evaluation/files/model_translations/{hpo_id}.xlsx"
     if os.path.isfile(filename):
         print("---Reading model translations---")
     else:

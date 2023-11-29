@@ -5,6 +5,8 @@ import nltk
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 from sentence_transformers import SentenceTransformer, util
 
+import sacrebleu
+
 # nltk.download('punkt')
 similarity_model = SentenceTransformer("paraphrase-multilingual-mpnet-base-v2")
 
@@ -15,6 +17,7 @@ class SimilarityMetric(Enum):
     SIMPLE = 1
     EDIT_DISTANCE = 2
     SEMANTIC_SIMILARITY = 3
+    SACREBLEU = 4
 
     def evaluate(self, reference: str, candidate: str) -> float:
         """Evaluate the given string similarity metric between two strings.
@@ -42,7 +45,11 @@ class SimilarityMetric(Enum):
                 cosine_similarity = util.cos_sim(query_embedding, passage_embedding)
                 return cosine_similarity[0].item()
 
+            case SimilarityMetric.SACREBLEU:
+                bleu = sacrebleu.raw_corpus_bleu(candidate, [reference])
+                return bleu.score
+
 
 if __name__ == "__main__":
-    metric = SimilarityMetric.SEMANTIC_SIMILARITY
-    print(metric.evaluate("Frecuencia del día", "Frecuencia diario"))
+    metric = SimilarityMetric.SACREBLEU
+    print(metric.evaluate("Frecuencia diario", "Frecuencia diario"))
