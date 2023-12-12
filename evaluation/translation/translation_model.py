@@ -1,6 +1,8 @@
 import pandas as pd
 import os
+import string
 
+from evaluation.official.expected_translations import clean_column
 from hpo_translator.src.translate import translate_hpo
 
 
@@ -12,6 +14,8 @@ def model_results(hpo_id: str, labels: bool) -> pd.DataFrame:
         print("---Generating model translations---")
         translate_hpo(hpo_id, only_labels=labels)
 
-    model_df = pd.read_excel(filename, sheet_name='Sheet1')
-    model_df = model_df.rename(columns={'id': 'hpo_id', 'spanish': 'traducción modelo'})
-    return model_df
+    translation_df = pd.read_excel(filename, sheet_name='Sheet1')
+    translation_df = translation_df.rename(columns={'id': 'hpo_id', 'spanish': 'traducción modelo'})
+    return clean_column(translation_df, 'traducción modelo')
+
+

@@ -12,7 +12,7 @@ similarity_model = SentenceTransformer("paraphrase-multilingual-mpnet-base-v2")
 
 
 class SimilarityMetric(Enum):
-    """Enum for string similarity metrics."""
+    """Enum for string similarity metrics. Each metric must implement the evaluate method."""
     BLEU = 0
     SIMPLE = 1
     EDIT_DISTANCE = 2
@@ -22,10 +22,10 @@ class SimilarityMetric(Enum):
     def evaluate(self, reference: str, candidate: str) -> float:
         """Evaluate the given string similarity metric between two strings.
         Performs simple string cleaning for whitespace and punctuation.
+        :param reference: reference and official term
+        :param candidate: model-produced translated term
+        :return: similarity score when evaluating this specific metric
         """
-        reference = reference.strip(string.punctuation).strip()
-        candidate = candidate.strip(string.punctuation).strip()
-
         match self:
             case SimilarityMetric.BLEU:
                 reference_tokens = nltk.word_tokenize(reference.lower())

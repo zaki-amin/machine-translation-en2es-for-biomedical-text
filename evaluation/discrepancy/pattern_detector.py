@@ -1,0 +1,70 @@
+import pandas as pd
+
+from evaluation.discrepancy.word_similarity import word_differences, most_similar_word
+
+
+def scan_all_translations(hpo_id: str):
+    translation_filepath = f"/Users/zaki/PycharmProjects/hpo_evaluation/files/results/official/{hpo_id}.csv"
+    df = pd.read_csv(translation_filepath)
+
+    similarities = find_most_similar_words(df)
+    sorted_similarities = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
+    for word, (most_similar, similarity_score) in sorted_similarities:
+        print(f"{word} -> {most_similar} (similarity score: {similarity_score})")
+
+    df = append_word_differences(df)
+    difference_filepath = f"/Users/zaki/PycharmProjects/hpo_evaluation/files/results/differences/{hpo_id}.csv"
+    df.to_csv(difference_filepath, index=False)
+
+
+def find_most_similar_words(df: pd.DataFrame) -> dict[str, tuple[str, float]]:
+    """Iterates through the translation dataframe and returns a similarity dictionary.
+    This similarity dictionary maps each mistranslated model word to a tuple of the most similar word
+    in the official translation and the corresponding similarity score from spacy.
+
+
+    :param df: The translation dataframe which must have the columns 'traducción modelo' and 'etiqueta oficial'
+    :return: A dictionary from each word to its most similar word and the similarity score from spacy.
+    Only contains all words translated by a model which do not appear in the official translation.
+    """
+    word_similarities: dict[str, tuple[str, float]] = {}
+    df.apply(lambda row: compare_row_and_update_similarities(row, word_similarities), axis=1)
+    return word_similarities
+
+
+def compare_row_and_update_similarities(row: pd.Series, word_similarities: dict[str, tuple[str, float]]):
+    """Compares the official term and the model term in the given row and updates the word similarities dictionary
+    :param row: A row from the translation dataframe
+    :param word_similarities: The word similarities dictionary
+    """
+    official_term = row["etiqueta oficial"]
+    model_term = row["traducción modelo"]
+
+    if official_term == model_term:
+        return
+
+    missing_official, missing_model = word_differences(official_term, model_term)
+    for mistranslation in missing_model:
+        similar_word, similar_score = most_similar_word(mistranslation, official_term)
+        if mistranslation not in word_similarities or similar_score > word_similarities[mistranslation][1]:
+            word_similarities[mistranslation] = (similar_word, similar_score)
+
+
+def append_word_differences(df: pd.DataFrame) -> pd.DataFrame:
+    """Appends two columns to the given dataframe: 'missing official' and 'missing model'.
+    The 'missing official' column contains all words in the official translation which are not in the model translation.
+    The 'missing model' column contains all words in the model translation which are not in the official translation.
+
+    :param df: The translation dataframe which must have the columns 'traducción modelo' and 'etiqueta oficial'
+    :return: The given dataframe with the two additional columns
+    """
+    df["missing official"] = df.apply(
+        lambda row: word_differences(row["etiqueta oficial"], row["traducción modelo"])[0],
+        axis=1)
+    df["missing model"] = df.apply(lambda row: word_differences(row["etiqueta oficial"], row["traducción modelo"])[1],
+                                   axis=1)
+    return df
+
+
+if __name__ == "__main__":
+    scan_all_translations("HP:0001197")
