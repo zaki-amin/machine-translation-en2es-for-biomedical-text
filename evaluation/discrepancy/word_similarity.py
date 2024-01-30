@@ -1,12 +1,17 @@
 import spacy
 
+from evaluation.utility.text_functions import word_split, trim_string
+
 nlp = spacy.load("en_core_web_md")
 
 
 def word_differences(official_term: str, model_term: str) -> tuple[set[str], set[str]]:
     """Returns the words that are in the official term but not in the model term and vice versa"""
-    official_words = set(official_term.split())
-    model_words = set(model_term.split())
+    official_words = word_split(official_term)
+    model_words = word_split(model_term)
+    # Clean all the words so any attached punctuation does not affect the comparison
+    official_words = {trim_string(word) for word in official_words}
+    model_words = {trim_string(word) for word in model_words}
     return official_words - model_words, model_words - official_words
 
 

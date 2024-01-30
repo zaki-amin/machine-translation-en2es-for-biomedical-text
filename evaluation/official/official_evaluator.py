@@ -3,6 +3,8 @@ from evaluation.official.string_similarity import SimilarityMetric
 from evaluation.translation.translation_model import model_results
 import pandas as pd
 
+from evaluation.utility.file_functions import save_to_csv
+
 
 def evaluate_translation(hpo_id: str, labels: bool):
     """Compares model translations against official translations for a given HPO ID. Saves results to CSV in directory files/results.
@@ -43,9 +45,3 @@ def display_accuracy(df: pd.DataFrame):
         model_performance = score / num_translations
         print(f"Score: {score} / {num_translations}")
         print("Model performance: {:.2%}".format(model_performance))
-
-
-def save_to_csv(df: pd.DataFrame, folder_path: str, hpo_id: str):
-    file_path = f"{folder_path}/{hpo_id}.csv"
-    df.to_csv(file_path, index=False)
-    print(f"\nCSV file {file_path} has been created")

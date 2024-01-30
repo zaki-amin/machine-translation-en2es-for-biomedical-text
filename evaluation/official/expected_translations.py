@@ -1,6 +1,6 @@
-import string
-
 import pandas as pd
+
+from evaluation.utility.text_functions import trim_string
 
 
 def read_official_translations(file: str, delimiter: str) -> pd.DataFrame:
@@ -19,8 +19,5 @@ def read_official_translations(file: str, delimiter: str) -> pd.DataFrame:
 
 def clean_column(translation_df: pd.DataFrame, column: str) -> pd.DataFrame:
     """Cleans punctuation and whitespace from the model's translations"""
-    def clean(translation: str) -> str:
-        return translation.strip(string.punctuation).strip()
-
-    translation_df[column] = translation_df[column].apply(clean)
+    translation_df[column] = translation_df[column].apply(trim_string)
     return translation_df

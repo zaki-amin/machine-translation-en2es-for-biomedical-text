@@ -1,6 +1,15 @@
 import pandas as pd
 
 from evaluation.discrepancy.word_similarity import word_differences, most_similar_word
+from evaluation.official.string_similarity import SimilarityMetric
+from evaluation.utility.text_functions import trim_string
+
+
+def drop_similarity_metrics(df: pd.DataFrame) -> pd.DataFrame:
+    """Drops all similarity metrics from the given dataframe"""
+    for metric in SimilarityMetric:
+        df = df.drop(metric.name, axis=1)
+    return df
 
 
 def scan_all_translations(hpo_id: str):
@@ -13,6 +22,9 @@ def scan_all_translations(hpo_id: str):
         print(f"{word} -> {most_similar} (similarity score: {similarity_score})")
 
     df = append_word_differences(df)
+    df = drop_rows_with_no_differences(df)
+    df = drop_similarity_metrics(df)
+
     difference_filepath = f"/Users/zaki/PycharmProjects/hpo_evaluation/files/results/differences/{hpo_id}.csv"
     df.to_csv(difference_filepath, index=False)
 
@@ -37,8 +49,8 @@ def compare_row_and_update_similarities(row: pd.Series, word_similarities: dict[
     :param row: A row from the translation dataframe
     :param word_similarities: The word similarities dictionary
     """
-    official_term = row["etiqueta oficial"]
-    model_term = row["traducción modelo"]
+    official_term = trim_string(row["etiqueta oficial"])
+    model_term = trim_string(row["traducción modelo"])
 
     if official_term == model_term:
         return
@@ -64,6 +76,12 @@ def append_word_differences(df: pd.DataFrame) -> pd.DataFrame:
     df["missing model"] = df.apply(lambda row: word_differences(row["etiqueta oficial"], row["traducción modelo"])[1],
                                    axis=1)
     return df
+
+
+def drop_rows_with_no_differences(df: pd.DataFrame) -> pd.DataFrame:
+    """Drops all rows from the given dataframe where the model and official translations are equivalent"""
+    condition = (df["missing official"].apply(len) == 0) & (df["missing model"].apply(len) == 0)
+    return df.drop(df[condition].index)
 
 
 if __name__ == "__main__":
