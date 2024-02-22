@@ -13,6 +13,9 @@ def drop_similarity_metrics(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def scan_all_translations(hpo_id: str):
+    """Opens translation file for the given HPO ID, prints the most similar words for those which have been
+    mistranslated and saves the differences between official and model to a CSV file.
+    """
     translation_filepath = f"/Users/zaki/PycharmProjects/hpo_evaluation/files/results/official/{hpo_id}.csv"
     df = pd.read_csv(translation_filepath)
 
