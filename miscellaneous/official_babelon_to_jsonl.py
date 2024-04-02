@@ -1,3 +1,5 @@
+import json
+
 import pandas as pd
 
 
@@ -7,10 +9,12 @@ def write_jsonl(filename: str):
     """
     print("---Reading official translations---")
     df = pd.read_table(filename, delimiter='\t')
+
     print("---Writing to JSONL---")
-    with open("official_translations.jsonl", "w") as file:
+    with open("official_translations.jsonl", "w") as jsonl_file:
         for _, row in df.iterrows():
-            file.write('{"en": "' + row["source_value"] + '", "es": "' + row["translation_value"] + '"}\n')
+            data = {"en": row["source_value"], "es": row["translation_value"]}
+            jsonl_file.write(json.dumps(data, ensure_ascii=False) + "\n")
 
 
 if __name__ == "__main__":
