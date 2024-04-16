@@ -18,6 +18,9 @@ class TranslationModel:
         :return: str - the translation"""
         pass
 
+    def __str__(self):
+        return self.checkpoint_name
+
 
 class NLLBModel(TranslationModel):
     def __init__(self):

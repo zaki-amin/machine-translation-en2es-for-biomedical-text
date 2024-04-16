@@ -1,4 +1,5 @@
 import json
+import pprint
 
 import pandas as pd
 from tqdm import tqdm
@@ -47,7 +48,7 @@ def evaluate_on_all_test_data(translation_models: list[TranslationModel], test_d
         print(f"Test dataset: {test_dataset}")
         test_sentences = load_sentences(test_dataset)
         model_metrics = evaluate_models_on(translation_models, test_sentences)
-        print(model_metrics)
+        pprint.pprint(model_metrics)
 
 
 if __name__ == "__main__":
