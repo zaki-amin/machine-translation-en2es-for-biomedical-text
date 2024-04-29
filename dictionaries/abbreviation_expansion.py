@@ -1,5 +1,4 @@
 import json
-from collections import defaultdict
 
 from evaluation.official.string_similarity import SimilarityMetric
 
@@ -12,7 +11,7 @@ def build_abbreviations_dictionary(filename: str) -> tuple[dict[str, list[str], 
     Each abbreviation dictionary maps shorthand letters to a list of possible expansions.
     :param filename: the path to the abbreviation file
     :return: a tuple of two dictionaries, the first mapping English abbreviations to expansions and the second for Spanish abbreviations"""
-    english_abbrs, spanish_abbrs = defaultdict(list[str]), defaultdict(list[str])
+    english_abbrs, spanish_abbrs = {}, {}
     with open(filename, 'r') as file:
         for line in file:
             abbreviation = json.loads(line)
@@ -21,9 +20,16 @@ def build_abbreviations_dictionary(filename: str) -> tuple[dict[str, list[str], 
             match abbr_type:
                 case 'AbrevEs' | 'Simbolo' | 'Formula' | 'Erroneo':
                     # add to the list if it already exists
-                    spanish_abbrs[letters].append(expansion)
+                    if spanish_abbrs[letters]:
+                        spanish_abbrs[letters].append(expansion)
+                    else:
+                        spanish_abbrs[letters] = [expansion]
+
                 case 'AbrevEn':
-                    english_abbrs[letters].append(expansion)
+                    if english_abbrs[letters]:
+                        english_abbrs[letters].append(expansion)
+                    else:
+                        english_abbrs[letters] = [expansion]
 
     return english_abbrs, spanish_abbrs
 
@@ -49,11 +55,8 @@ def most_appropriate_expansion(acronym: str, phrase: str, abbreviation_dictionar
     No possible expansion returns the acronym as is
     Otherwise, returns the most appropriate expansion based on semantic similarity in the phrase context"""
     expansions = abbreviation_dictionary[acronym]
-    num_expansions = len(expansions)
-    if num_expansions == 0:
+    if expansions is None:
         return acronym
-    elif num_expansions == 1:
-        return expansions[0]
 
     best_expansion = expansions[0]
     best_similarity = metric.evaluate(phrase, best_expansion)
@@ -65,12 +68,20 @@ def most_appropriate_expansion(acronym: str, phrase: str, abbreviation_dictionar
     return best_expansion
 
 
+def contains_abbreviation(phrase: str,
+                          abbreviation_dictionaries: tuple[dict[str, list[str], dict[str, list[str]]]],
+                          language: str) -> bool:
+    abbr_dict = abbreviation_dictionaries[0 if language == "en" else 1]
+    for word in phrase.split(" "):
+        if word in abbr_dict:
+            return True
+    return False
+
+
 def main():
     abbr_dictionaries = build_abbreviations_dictionary(abbreviation_filename)
-    phrase = "Antigens and ACE"
-    acronym = "ACE"
-    print(abbreviation_expansion(acronym, phrase, abbr_dictionaries, 'en'))
-    print(abbreviation_expansion(acronym, phrase, abbr_dictionaries, 'es'))
+    print(contains_abbreviation("ACERGSGSDF is cool", abbr_dictionaries, "en"))
+    print(contains_abbreviation("Es un ACE muy pequeño", abbr_dictionaries, "es"))
 
 
 if __name__ == "__main__":
