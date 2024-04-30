@@ -12,26 +12,29 @@ class Abbreviations:
     def _build_abbreviations_dictionary(self) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
         """Iterates over the abbreviation file and builds an English and Spanish abbreviation dictionary.
         Each abbreviation dictionary maps shorthand letters to a list of possible expansions.
-        :param filename: the path to the abbreviation file
-        :return: a tuple of two dictionaries, the first mapping English abbreviations to expansions and the second for Spanish abbreviations"""
+        :return: a tuple of two dictionaries, the first mapping English abbreviations to expansions
+        and the second for Spanish abbreviations"""
         english_abbrs, spanish_abbrs = {}, {}
         with open(self.abbreviation_filename, 'r') as file:
             for line in file:
                 abbreviation = json.loads(line)
-                letters, expansion, abbr_type = abbreviation['abreviatura'], abbreviation['termino'], abbreviation[
-                    'cat_txt']
-                match abbr_type:
+                acronym, term, category = abbreviation['acronym'], abbreviation['term'], abbreviation[
+                    'category']
+                if acronym == term:
+                    # Do not add acronyms which are mapped to themselves
+                    continue
+                match category:
                     case 'AbrevEs' | 'Simbolo' | 'Formula' | 'Erroneo':
-                        if letters in spanish_abbrs:
-                            spanish_abbrs[letters].append(expansion)
+                        if acronym in spanish_abbrs:
+                            spanish_abbrs[acronym].append(term)
                         else:
-                            spanish_abbrs[letters] = [expansion]
+                            spanish_abbrs[acronym] = [term]
 
                     case 'AbrevEn':
-                        if letters in english_abbrs:
-                            english_abbrs[letters].append(expansion)
+                        if acronym in english_abbrs:
+                            english_abbrs[acronym].append(term)
                         else:
-                            english_abbrs[letters] = [expansion]
+                            english_abbrs[acronym] = [term]
 
         return english_abbrs, spanish_abbrs
 
@@ -43,9 +46,13 @@ class Abbreviations:
         No possible expansion returns the acronym as is
         Otherwise, returns the most appropriate expansion based on semantic similarity in the phrase context"""
         abbreviation_dictionary = self.abbreviation_dictionary_en if lang == 'en' else self.abbreviation_dictionary_es
-        expansions = abbreviation_dictionary[acronym]
-        if expansions is None:
+        if acronym not in abbreviation_dictionary:
             return acronym
+
+        expansions = abbreviation_dictionary[acronym]
+        if len(expansions) == 1:
+            # Choose the only possible expansion
+            return expansions[0]
 
         best_expansion = expansions[0]
         best_similarity = self.semantic_similarity.evaluate(phrase, best_expansion)
@@ -61,20 +68,9 @@ class Abbreviations:
         :param phrase: the phrase to expand
         :returns: the phrase with all abbreviations expanded"""
         for word in phrase.split(" "):
+            # Any punctuation attached must be removed before checking membership
+            word = word.strip(".,;:!?()[]{}")
             if word in self.abbreviation_dictionary_en:
-                acronym = word
-                replacement = self.most_appropriate_expansion(acronym, phrase, 'en')
-                phrase = phrase.replace(acronym, replacement)
+                replacement = self.most_appropriate_expansion(word, phrase, "en")
+                phrase = phrase.replace(word, replacement)
         return phrase
-
-
-def main():
-    abbreviation_filename = "/Users/zaki/PycharmProjects/hpo_translation/dictionaries/processed/abbreviations.jsonl"
-    abbr = Abbreviations(abbreviation_filename)
-
-    phrase = "The test revealed there was AMP in his urine, a sign of prostate cancer"
-    print(abbr.expand_all_abbreviations_english(phrase))
-
-
-if __name__ == "__main__":
-    main()
