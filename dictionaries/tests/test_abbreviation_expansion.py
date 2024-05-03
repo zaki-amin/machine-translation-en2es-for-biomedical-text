@@ -35,18 +35,31 @@ class TestAbbreviations(unittest.TestCase):
         gds_expansions = self.abbr.abbreviation_dictionary_en["GDS"]
         self.assertFalse("GDS" in gds_expansions, "GDS should not map to GDS in the dictionary")
 
-    def test_most_appropriate_expansion_english(self):
+    def test_most_appropriate_expansion_english_1(self):
         phrase = "The test revealed there was AMP in his urine, a sign of prostate cancer"
         self.assertEqual(self.abbr.most_appropriate_expansion("AMP", phrase, 'en'), "adenosine monophosphate",
-                         "AMP should expand to adenosine monophosphate in this context")
+                         "AMP should expand to adenosine monophosphate in this context and not Academia de Medicina del Paraguay")
 
-    def test_whole_phrase_expansion(self):
+    def test_whole_phrase_expansion_english(self):
         phrase = "The elderly man scored highly on the GDS, indicating depression"
         replacement_phrase = self.abbr.expand_all_abbreviations_english(phrase)
-        print(replacement_phrase)
         self.assertEqual(replacement_phrase,
                          "The elderly man scored highly on the geriatric depression scale, indicating depression",
                          "GDS should expand to geriatric depression scale in this context")
+
+    def test_expansion_adds_description_spanish(self):
+        phrase = "El médico descubrió que el paciente tenía alta TA, aumentando el riesgo del ataque cardíaco"
+        replacement_phrase = self.abbr.expand_all_abbreviations_spanish(phrase)
+        self.assertEqual(replacement_phrase,
+                         "El médico descubrió que el paciente tenía alta TA (presión arterial), aumentando el riesgo "
+                         "del ataque cardíaco",
+                         "TA should expand to TA (presión arterial) in this context")
+
+    def test_do_not_expand_irrelevant_acronyms(self):
+        phrase = "La prueba reveló que el paciente tenía alta TA"
+        replacement_phrase = self.abbr.expand_all_abbreviations_spanish(phrase)
+        self.assertFalse("(lantano)" in replacement_phrase,
+                         "La should not expand to La (lantano) when there is no context for it")
 
 
 if __name__ == '__main__':

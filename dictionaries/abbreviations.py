@@ -41,10 +41,16 @@ class Abbreviations:
     def most_appropriate_expansion(self,
                                    acronym: str,
                                    phrase: str,
-                                   lang: str) -> str:
+                                   lang: str,
+                                   similarity_threshold: float = 0.4) -> str:
         """Chooses the most appropriate expansion for an acronym.
         No possible expansion returns the acronym as is
-        Otherwise, returns the most appropriate expansion based on semantic similarity in the phrase context"""
+        Otherwise, returns the most appropriate expansion based on semantic similarity in the phrase context
+        :param acronym: the acronym to expand
+        :param phrase: the phrase containing the acronym
+        :param lang: the language of the acronym
+        :param similarity_threshold: the threshold above which an expansion is considered appropriate
+        :returns: the most appropriate expansion for the acronym in the phrase context"""
         abbreviation_dictionary = self.abbreviation_dictionary_en if lang == 'en' else self.abbreviation_dictionary_es
         if acronym not in abbreviation_dictionary:
             return acronym
@@ -61,16 +67,34 @@ class Abbreviations:
             if similarity > best_similarity:
                 best_similarity = similarity
                 best_expansion = expansion
+
+        if best_similarity < similarity_threshold:
+            # Not similar enough to phrase to be considered appropriate
+            return acronym
         return best_expansion
 
     def expand_all_abbreviations_english(self, phrase: str) -> str:
-        """Expands all abbreviations in an English phrase.
-        :param phrase: the phrase to expand
+        """Expands all abbreviations in an English phrase. Pre-processing step.
+        :param phrase: the phrase with abbreviations
         :returns: the phrase with all abbreviations expanded"""
         for word in phrase.split(" "):
             # Any punctuation attached must be removed before checking membership
             word = word.strip(".,;:!?()[]{}")
             if word in self.abbreviation_dictionary_en:
                 replacement = self.most_appropriate_expansion(word, phrase, "en")
+                phrase = phrase.replace(word, replacement)
+        return phrase
+
+    def expand_all_abbreviations_spanish(self, phrase: str) -> str:
+        """Expands all abbreviations in a Spanish phrase. Post-processing step.
+        Maintains the initial acronym and puts its meaning in brackets after.
+        :param phrase: the phrase with abbreviations
+        :returns: the phrase with all abbreviations expanded"""
+        for word in phrase.split(" "):
+            # Any punctuation attached must be removed before checking membership
+            word = word.strip(".,;:!?()[]{}")
+            if word in self.abbreviation_dictionary_es:
+                replacement = self.most_appropriate_expansion(word, phrase, "es")
+                replacement = f"{word} ({replacement})"
                 phrase = phrase.replace(word, replacement)
         return phrase
