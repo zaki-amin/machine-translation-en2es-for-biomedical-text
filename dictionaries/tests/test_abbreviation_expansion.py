@@ -51,15 +51,26 @@ class TestAbbreviations(unittest.TestCase):
         phrase = "El médico descubrió que el paciente tenía alta TA, aumentando el riesgo del ataque cardíaco"
         replacement_phrase = self.abbr.expand_all_abbreviations_spanish(phrase)
         self.assertEqual(replacement_phrase,
-                         "El médico descubrió que el paciente tenía alta TA (presión arterial), aumentando el riesgo "
+                         "El médico descubrió que el paciente tenía alta presión arterial, aumentando el riesgo "
                          "del ataque cardíaco",
-                         "TA should expand to TA (presión arterial) in this context")
+                         "TA should expand to presión arterial in this context")
 
     def test_do_not_expand_irrelevant_acronyms(self):
         phrase = "La prueba reveló que el paciente tenía alta TA"
         replacement_phrase = self.abbr.expand_all_abbreviations_spanish(phrase)
         self.assertFalse("(lantano)" in replacement_phrase,
-                         "La should not expand to La (lantano) when there is no context for it")
+                         "La should not expand to lantano when there is no context for it")
+
+    def test_preprocessing_expands_abbreviations_in_all_sentences(self):
+        english_inputs = ["The patient's tRNA does not function properly, indicating ribosomal damage.",
+                          "Her symptoms and travel history suggest she has contracted CHIKV."]
+        preprocessed = self.abbr.preprocess(english_inputs)
+        self.assertEqual(preprocessed[0],
+                         "The patient's transfer RNA does not function properly, indicating ribosomal damage.",
+                         "tRNA should expand to transfer RNA in this context")
+        self.assertEqual(preprocessed[1],
+                         "Her symptoms and travel history suggest she has contracted chikungunya virus.",
+                         "CHIKV should expand to chikungunya virus in this context")
 
 
 if __name__ == '__main__':

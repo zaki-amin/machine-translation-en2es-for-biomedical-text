@@ -95,6 +95,9 @@ class Abbreviations:
             word = word.strip(".,;:!?()[]{}")
             if word in self.abbreviation_dictionary_es:
                 replacement = self.most_appropriate_expansion(word, phrase, "es")
-                replacement = f"{word} ({replacement})"
                 phrase = phrase.replace(word, replacement)
         return phrase
+
+    def preprocess(self, english_inputs: list[str]) -> list[str]:
+        """Expands all abbreviations in all of the English inputs provided"""
+        return list(map(lambda line: self.expand_all_abbreviations_english(line), english_inputs))
