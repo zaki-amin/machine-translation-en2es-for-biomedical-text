@@ -1,3 +1,4 @@
+import argparse
 import json
 
 import pandas as pd
@@ -32,7 +33,7 @@ def translate_input(input_file: str,
         english_inputs = [line.strip() for line in file.readlines()]
     spanish_outputs = translate_english_inputs(english_inputs, abbreviations_filename, synonyms_filename, checkpoint,
                                                config)
-    data = {'en': english_inputs, 'es': spanish_outputs}
+    data = {'english': english_inputs, 'translation': spanish_outputs}
     df = pd.DataFrame(data)
     df.to_csv(output_file, index=False, header=True)
 
@@ -122,12 +123,23 @@ def evaluate_translations(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def main():
+def main(input_filename: str = "input.jsonl",
+         output_filename: str = "output.csv",
+         evaluate: bool = False):
+    """Main function to translate (and evaluate) English to Spanish."""
     abbreviations_filename = "/Users/zaki/PycharmProjects/hpo_translation/dictionaries/processed/abbreviations.jsonl"
     synonyms_filename = "/Users/zaki/PycharmProjects/hpo_translation/dictionaries/processed/preferred_synonyms_es.jsonl"
-    # translate_input("input.txt", "output.csv", abbreviations_filename, synonyms_filename)
-    translate_and_evaluate("input.jsonl", "output.csv", abbreviations_filename, synonyms_filename)
+    if evaluate:
+        translate_and_evaluate(input_filename, output_filename, abbreviations_filename, synonyms_filename)
+    else:
+        translate_input(input_filename, output_filename, abbreviations_filename, synonyms_filename)
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Translate English to Spanish and evaluate translations")
+    parser.add_argument("input_file", type=str, help="The input file to translate, .txt or .jsonl format")
+    parser.add_argument("output_file", type=str, help="The output file to write results to")
+    parser.add_argument("--evaluate", action="store_true", help="Evaluate translations against reference translations")
+    args = parser.parse_args()
+    # print(args)
+    main(args.input_file, args.output_file, args.evaluate)
