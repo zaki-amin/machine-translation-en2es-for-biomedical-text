@@ -10,10 +10,10 @@ class Abbreviations:
         self.semantic_similarity = SimilarityMetric.SEMANTIC_SIMILARITY
 
     def _build_abbreviations_dictionary(self) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
-        """Iterates over the abbreviation file and builds an English and Spanish abbreviation dictionary.
-        Each abbreviation dictionary maps shorthand letters to a list of possible expansions.
-        :return: a tuple of two dictionaries, the first mapping English abbreviations to expansions
-        and the second for Spanish abbreviations"""
+        """Iterates over the abbreviation file and builds English and Spanish abbreviation dictionaries. Each
+        abbreviation dictionary maps shorthand letters to a list of possible expansions.
+        :return: a tuple of two
+        dictionaries, the first mapping English abbreviations to expansions and the second for Spanish abbreviations"""
         english_abbrs, spanish_abbrs = {}, {}
         with open(self.abbreviation_filename, 'r') as file:
             for line in file:
@@ -73,31 +73,36 @@ class Abbreviations:
             return acronym
         return best_expansion
 
-    def expand_all_abbreviations_english(self, phrase: str) -> str:
-        """Expands all abbreviations in an English phrase. Pre-processing step.
+    def expand_all_abbreviations(self, phrase: str, lang: str) -> str:
+        """Expands all abbreviations in a phrase in the corresponding langauge
         :param phrase: the phrase with abbreviations
+        :param lang: the language of the phrase
         :returns: the phrase with all abbreviations expanded"""
+        dictionary = self.abbreviation_dictionary_en if lang == "en" else self.abbreviation_dictionary_es
         for word in phrase.split(" "):
             # Any punctuation attached must be removed before checking membership
             word = word.strip(".,;:!?()[]{}")
-            if word in self.abbreviation_dictionary_en:
-                replacement = self.most_appropriate_expansion(word, phrase, "en")
+            if word in dictionary:
+                replacement = self.most_appropriate_expansion(word, phrase, lang)
                 phrase = phrase.replace(word, replacement)
         return phrase
+
+    def expand_all_abbreviations_english(self, phrase: str) -> str:
+        """Expands all abbreviations in an English phrase.
+        :param phrase: the phrase with abbreviations
+        :returns: the phrase with all abbreviations expanded"""
+        return self.expand_all_abbreviations(phrase, "en")
 
     def expand_all_abbreviations_spanish(self, phrase: str) -> str:
-        """Expands all abbreviations in a Spanish phrase. Post-processing step.
-        Maintains the initial acronym and puts its meaning in brackets after.
+        """Expands all abbreviations in a Spanish phrase..
         :param phrase: the phrase with abbreviations
         :returns: the phrase with all abbreviations expanded"""
-        for word in phrase.split(" "):
-            # Any punctuation attached must be removed before checking membership
-            word = word.strip(".,;:!?()[]{}")
-            if word in self.abbreviation_dictionary_es:
-                replacement = self.most_appropriate_expansion(word, phrase, "es")
-                phrase = phrase.replace(word, replacement)
-        return phrase
+        return self.expand_all_abbreviations(phrase, "es")
 
     def preprocess(self, english_inputs: list[str]) -> list[str]:
-        """Expands all abbreviations in all of the English inputs provided"""
+        """Expands all abbreviations in all the English inputs provided"""
         return list(map(lambda line: self.expand_all_abbreviations_english(line), english_inputs))
+
+    def postprocess(self, spanish_outputs: list[str]) -> list[str]:
+        """Expands all abbreviations in all the Spanish outputs provided"""
+        return list(map(lambda line: self.expand_all_abbreviations_spanish(line), spanish_outputs))
