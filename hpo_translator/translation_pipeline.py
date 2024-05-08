@@ -3,8 +3,8 @@ import json
 
 import pandas as pd
 
-from dictionaries.abbreviations import Abbreviations
-from dictionaries.preferred_synonyms import PreferredSynonyms
+from processing.abbreviations import Abbreviations
+from processing.preferred_synonyms import PreferredSynonyms
 from evaluation.official.string_similarity import SimilarityMetric
 from hpo_translator.src.models import MarianMTConfig, NMTModelConfig
 from hpo_translator.src.translate import translate
@@ -125,10 +125,11 @@ def evaluate_translations(df: pd.DataFrame) -> pd.DataFrame:
 
 def main(input_filename: str = "input.jsonl",
          output_filename: str = "output.csv",
-         evaluate: bool = False):
+         evaluate: bool = False,
+         post_expansion: bool = False):
     """Main function to translate (and evaluate) English to Spanish."""
-    abbreviations_filename = "/Users/zaki/PycharmProjects/hpo_translation/dictionaries/processed/abbreviations.jsonl"
-    synonyms_filename = "/Users/zaki/PycharmProjects/hpo_translation/dictionaries/processed/preferred_synonyms_es.jsonl"
+    abbreviations_filename = "/processing/processed/abbreviations.jsonl"
+    synonyms_filename = "/processing/processed/preferred_synonyms_es.jsonl"
     if evaluate:
         translate_and_evaluate(input_filename, output_filename, abbreviations_filename, synonyms_filename)
     else:
@@ -140,6 +141,7 @@ if __name__ == "__main__":
     parser.add_argument("input_file", type=str, help="The input file to translate, .txt or .jsonl format")
     parser.add_argument("output_file", type=str, help="The output file to write results to")
     parser.add_argument("--evaluate", action="store_true", help="Evaluate translations against reference translations")
+    parser.add_argument("--postexpansion", action="store_true", help="Post-expand abbreviations in Spanish")
     args = parser.parse_args()
     # print(args)
     main(args.input_file, args.output_file, args.evaluate)

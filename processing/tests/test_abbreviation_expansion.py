@@ -1,10 +1,10 @@
 import unittest
 
-from dictionaries.abbreviations import Abbreviations
+from processing.abbreviations import Abbreviations
 
 
 class TestAbbreviations(unittest.TestCase):
-    abbreviation_filename = "/Users/zaki/PycharmProjects/hpo_translation/dictionaries/processed/abbreviations.jsonl"
+    abbreviation_filename = "/processing/processed/abbreviations.jsonl"
     abbr = Abbreviations(abbreviation_filename)
 
     def test_loading_abbreviation_dict_english(self):
