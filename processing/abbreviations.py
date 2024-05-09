@@ -24,7 +24,7 @@ class Abbreviations:
                     # Do not add acronyms which are mapped to themselves
                     continue
                 match category:
-                    case 'AbrevEs' | 'Simbolo' | 'Formula' | 'Erroneo':
+                    case 'AbrevEs' | 'Simbolo' | 'Formula':
                         if acronym in spanish_abbrs:
                             spanish_abbrs[acronym].append(term)
                         else:
@@ -35,6 +35,11 @@ class Abbreviations:
                             english_abbrs[acronym].append(term)
                         else:
                             english_abbrs[acronym] = [term]
+
+                    case 'Erroneo':
+                        # Discard these erroneous abbreviations
+                        continue
+
 
         return english_abbrs, spanish_abbrs
 

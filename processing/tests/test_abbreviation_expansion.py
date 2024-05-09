@@ -4,7 +4,8 @@ from processing.abbreviations import Abbreviations
 
 
 class TestAbbreviations(unittest.TestCase):
-    abbreviation_filename = "/processing/processed/abbreviations.jsonl"
+    abbreviation_filename = ("/Users/zaki/PycharmProjects/hpo_translation/processing/dictionaries/processed"
+                             "/abbreviations.jsonl")
     abbr = Abbreviations(abbreviation_filename)
 
     def test_loading_abbreviation_dict_english(self):
@@ -24,6 +25,10 @@ class TestAbbreviations(unittest.TestCase):
                         "V/Q should be in the Spanish abbreviation dictionary")
         self.assertEqual(self.abbr.abbreviation_dictionary_es["V/Q"], ["relación ventilación-perfusión"],
                          "V/Q should map to relación ventilación-perfusión in the dictionary")
+
+    def test_discard_abbreviations_of_category_erroneo(self):
+        self.assertFalse("hr" in self.abbr.abbreviation_dictionary_es,
+                         "'hr' should not be an abbreviation for 'hora' in the Spanish abbreviation dictionary")
 
     def test_multiple_spanish_abbreviations(self):
         ai_expansions = self.abbr.abbreviation_dictionary_es["AI"]
