@@ -4,8 +4,10 @@ from evaluation.official.string_similarity import SimilarityMetric
 
 
 class Abbreviations:
-    def __init__(self, abbr_file: str):
+    def __init__(self, abbr_file: str, pre_exp: bool = True, post_exp: bool = True):
         self.abbreviation_filename = abbr_file
+        self.pre_exp = pre_exp
+        self.post_exp = post_exp
         self.abbreviation_dictionary_en, self.abbreviation_dictionary_es = self._build_abbreviations_dictionary()
         self.semantic_similarity = SimilarityMetric.SEMANTIC_SIMILARITY
 
@@ -39,7 +41,6 @@ class Abbreviations:
                     case 'Erroneo':
                         # Discard these erroneous abbreviations
                         continue
-
 
         return english_abbrs, spanish_abbrs
 
@@ -105,9 +106,15 @@ class Abbreviations:
         return self.expand_all_abbreviations(phrase, "es")
 
     def preprocess(self, english_inputs: list[str]) -> list[str]:
-        """Expands all abbreviations in all the English inputs provided"""
+        """If flag pre_exp enabled, expand all abbreviations in all the English inputs provided.
+        Otherwise, return the English inputs as they are"""
+        if not self.pre_exp:
+            return english_inputs
         return list(map(lambda line: self.expand_all_abbreviations_english(line), english_inputs))
 
     def postprocess(self, spanish_outputs: list[str]) -> list[str]:
-        """Expands all abbreviations in all the Spanish outputs provided"""
+        """If flag post_exp enabled, expand all abbreviations in all the Spanish outputs provided.
+        Otherwise, return the Spanish outputs as they are"""
+        if not self.post_exp:
+            return spanish_outputs
         return list(map(lambda line: self.expand_all_abbreviations_spanish(line), spanish_outputs))

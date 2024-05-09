@@ -6,7 +6,7 @@ from processing.abbreviations import Abbreviations
 class TestAbbreviations(unittest.TestCase):
     abbreviation_filename = ("/Users/zaki/PycharmProjects/hpo_translation/processing/dictionaries/processed"
                              "/abbreviations.jsonl")
-    abbr = Abbreviations(abbreviation_filename)
+    abbr = Abbreviations(abbreviation_filename, pre_exp=True, post_exp=True)
 
     def test_loading_abbreviation_dict_english(self):
         self.assertTrue('AMP' in self.abbr.abbreviation_dictionary_en,
@@ -76,6 +76,20 @@ class TestAbbreviations(unittest.TestCase):
         self.assertEqual(preprocessed[1],
                          "Her symptoms and travel history suggest she has contracted chikungunya virus.",
                          "CHIKV should expand to chikungunya virus in this context")
+
+    def test_preprocessing_does_not_expand_abbreviations_when_flag_disabled(self):
+        abbr = Abbreviations(self.abbreviation_filename, pre_exp=False, post_exp=True)
+        english_inputs = ["The patient's tRNA does not function properly, indicating ribosomal damage.",
+                          "Her symptoms and travel history suggest she has contracted CHIKV."]
+        preprocessed = abbr.preprocess(english_inputs)
+        self.assertEqual(preprocessed, english_inputs, "Abbreviations should not be expanded when pre_exp is False")
+
+    def test_postprocessing_does_not_expand_abbreviations_when_glag_disabled(self):
+        abbr = Abbreviations(self.abbreviation_filename, pre_exp=True, post_exp=False)
+        spanish_outputs = [
+            "El médico descubrió que el paciente tenía alta TA, aumentando el riesgo del ataque cardíaco"]
+        postprocessed = abbr.postprocess(spanish_outputs)
+        self.assertEqual(postprocessed, spanish_outputs, "Abbreviations should not be expanded when post_exp is False")
 
 
 if __name__ == '__main__':
