@@ -130,6 +130,7 @@ def evaluate_translations(df: pd.DataFrame) -> pd.DataFrame:
         score = 1 - SimilarityMetric.WER.evaluate(row['reference'], row['translation'])
         return round(score * 100, round_digits)
 
+    print("Evaluating translations...")
     df['sacrebleu'] = df.apply(sacrebleu, axis=1)
     df['semsim'] = df.apply(semsim, axis=1)
     df['wer'] = df.apply(wer, axis=1)
@@ -139,16 +140,16 @@ def evaluate_translations(df: pd.DataFrame) -> pd.DataFrame:
 def main(input_filename: str = "input.jsonl",
          output_filename: str = "output.csv",
          evaluate: bool = False,
-         abbrev_expansion: bool = False):
+         expansion: tuple[bool, bool] = (False, False)):
     """Main function to translate (and evaluate) English to Spanish."""
-    abbreviations_filename = "/processing/processed/abbreviations.jsonl"
-    synonyms_filename = "/processing/processed/preferred_synonyms_es.jsonl"
+    abbreviations_filename = "/Users/zaki/PycharmProjects/hpo_translation/processing/dictionaries/processed/abbreviations.jsonl"
+    synonyms_filename = "/Users/zaki/PycharmProjects/hpo_translation/processing/dictionaries/processed/preferred_synonyms_es.jsonl"
     if evaluate:
         translate_and_evaluate(input_filename, output_filename, abbreviations_filename,
-                               synonyms_filename, abbrev_expansion)
+                               synonyms_filename, expansion)
     else:
         translate_no_evaluate(input_filename, output_filename, abbreviations_filename,
-                              synonyms_filename, abbrev_expansion)
+                              synonyms_filename, expansion)
 
 
 if __name__ == "__main__":
@@ -160,7 +161,6 @@ if __name__ == "__main__":
     parser.add_argument("--preexpansion", action="store_true", help="Pre-expand abbreviations in Spanish")
     parser.add_argument("--postexpansion", action="store_true", help="Post-expand abbreviations in Spanish")
     args = parser.parse_args()
-    print(args)
+    print("CLI arguments:", args)
     expansion_flags = (args.preexpansion, args.postexpansion)
-    print(expansion_flags)
-    # main(args.input_file, args.output_file, args.evaluate, args.abbrevexpansion)
+    main(args.input_file, args.output_file, args.evaluate, expansion_flags)
