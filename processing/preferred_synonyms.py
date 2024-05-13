@@ -19,11 +19,15 @@ class PreferredSynonyms:
             for line in file:
                 entry = json.loads(line)
                 original, primary = entry["sec"], entry["ppal"]
-                synonym_dict[original].append(primary)
+                num_words = len(original.split())
+                if num_words >= 2:
+                    # Avoid over replacement by discarding single words
+                    synonym_dict[original].append(primary)
         return synonym_dict
 
     def postprocess_translation(self, phrase: str) -> str:
         def is_phrase_contained(candidate):
+            # Only match standalone words
             pattern = r'\b{}\b'.format(re.escape(candidate))
             return bool(re.search(pattern, phrase))
 
