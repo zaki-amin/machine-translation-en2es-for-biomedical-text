@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 from evaluation.official.expected_translations import clean_column
-from hpo_translator.src.translate import translate_hpo
+from translation.src.translate import translate_hpo
 
 
 def model_results(hpo_id: str, labels: bool) -> pd.DataFrame:
