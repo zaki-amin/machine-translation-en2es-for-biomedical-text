@@ -6,7 +6,7 @@ from accelerate import Accelerator
 from datasets import load_dataset, DatasetDict
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
-from transformers import DataCollatorForSeq2Seq, MarianTokenizer, MarianMTModel, AdamWeightDecay, get_scheduler
+from transformers import DataCollatorForSeq2Seq, MarianTokenizer, MarianMTModel, AdamW, get_scheduler
 
 
 class FineTuning:
@@ -15,10 +15,11 @@ class FineTuning:
         self.max_length = max_length
         self.model = MarianMTModel.from_pretrained(checkpoint_name)
         self.tokenizer = MarianTokenizer.from_pretrained(checkpoint_name)
+        # Using PyTorch
         self.data_collator = DataCollatorForSeq2Seq(tokenizer=self.tokenizer,
                                                     model=self.model,
                                                     max_length=max_length,
-                                                    return_tensors="tf")
+                                                    return_tensors="pt")
         self.metric = evaluate.load("sacrebleu")
 
     def preprocess_with_tokens(self, examples):
@@ -66,9 +67,7 @@ class FineTuning:
             collate_fn=self.data_collator,
             batch_size=batch_size,
         )
-        optimizer = AdamWeightDecay(learning_rate=2e-5, weight_decay_rate=0.01)
-        self.model.compile(optimizer)
-
+        optimizer = AdamW(self.model.parameters(), lr=2e-5)
         accelerator = Accelerator()
         model, optimizer, train_dataloader, eval_dataloader = accelerator.prepare(
             self.model, optimizer, train_dataloader, validation_dataloader
@@ -154,5 +153,5 @@ def main(hf_token: str):
 
 
 if __name__ == "__main__":
-    hf_token = "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"
-    main(hf_token)
+    token = "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"
+    main(token)
