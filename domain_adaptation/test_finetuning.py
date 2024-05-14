@@ -1,12 +1,12 @@
 import unittest
 
-from domain_adaptation.finetuning import FineTuning
+from domain_adaptation.finetuning import FineTuning, load_corpus
 
 
 class TestFineTuning(unittest.TestCase):
-    fine_tuning = FineTuning('Helsinki-NLP/opus-mt-en-es')
+    fine_tuning = FineTuning('Helsinki-NLP/opus-mt-en-es', 512)
     filepath = '../corpus/train/medline.jsonl'
-    data = fine_tuning.load_corpus(filepath, 0.2, 42)
+    data = load_corpus(filepath, 0.2, 42)
 
     def test_data_loads_correctly(self):
         first_train_example = self.data['train'][0]
@@ -23,14 +23,18 @@ class TestFineTuning(unittest.TestCase):
                 "examination of an intestinal resection specimen.")
         tokens = self.fine_tuning.tokenizer(text)
         self.assertIn("input_ids", tokens, "Tokenization failed to produce input_ids")
-        print(tokens)
 
     def test_both_training_and_validation_data_preprocessed(self):
-        max_length = 512
-        preprocessed_data = self.fine_tuning.tokenize_all_datasets(self.data, max_length)
+        preprocessed_data = self.fine_tuning.tokenize_all_datasets(self.data)
 
-        first_train_example = preprocessed_data['train'][0]
+        first_train_example = preprocessed_data["train"][0]
         self.assertIn("input_ids", first_train_example, "Training data not preprocessed")
 
-        first_validation_example = preprocessed_data['validation'][0]
+        first_validation_example = preprocessed_data["validation"][0]
         self.assertIn("input_ids", first_validation_example, "Validation data not preprocessed")
+
+    def test_data_collation(self):
+        preprocessed_data = self.fine_tuning.tokenize_all_datasets(self.data)
+        batch = self.fine_tuning.data_collator([preprocessed_data["train"][i] for i in range(1, 3)])
+        self.assertIn("input_ids", batch, "Data collation failed to produce input_ids")
+        self.assertIn("labels", batch, "Data collation failed to produce labels")
