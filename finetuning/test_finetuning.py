@@ -1,6 +1,6 @@
 import unittest
 
-from finetuning.data import load_corpus, marian_tokenizer
+from finetuning.data import load_corpus, marian_tokenizer, tokenize_all_datasets
 
 
 class TestFineTuning(unittest.TestCase):
@@ -24,3 +24,13 @@ class TestFineTuning(unittest.TestCase):
         tokens = self.tokenizer(text)
         self.assertIn("input_ids", tokens, "Tokenization failed to produce input_ids")
         print(tokens)
+
+    def test_both_training_and_validation_data_preprocessed(self):
+        max_length = 512
+        preprocessed_data = tokenize_all_datasets(self.tokenizer, self.data, max_length)
+
+        first_train_example = preprocessed_data['train'][0]
+        self.assertIn("input_ids", first_train_example, "Training data not preprocessed")
+
+        first_validation_example = preprocessed_data['validation'][0]
+        self.assertIn("input_ids", first_validation_example, "Validation data not preprocessed")

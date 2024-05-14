@@ -18,3 +18,21 @@ def marian_tokenizer() -> MarianTokenizer:
     """Returns the original MarianTokenizer for Helsinki-NLP/opus-mt-en-es"""
     checkpoint_name = "Helsinki-NLP/opus-mt-en-es"
     return MarianTokenizer.from_pretrained(checkpoint_name)
+
+
+def preprocess_with_tokens(tokenizer: MarianTokenizer, examples, max_length: int):
+    """Preprocesses the data for fine-tuning using the MarianTokenizer"""
+    inputs = [ex for ex in examples["en"]]
+    targets = [ex for ex in examples["es"]]
+    model_inputs = tokenizer(
+        inputs, text_target=targets, max_length=max_length, truncation=True
+    )
+    return model_inputs
+
+
+def tokenize_all_datasets(tokenizer: MarianTokenizer, data: DatasetDict, max_length: int) -> DatasetDict:
+    """Applies tokenization pre-processing to all datasets"""
+    return data.map(
+        lambda examples: preprocess_with_tokens(tokenizer, examples, max_length),
+        batched=True,
+    )
