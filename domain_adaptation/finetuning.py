@@ -2,8 +2,10 @@ import evaluate
 import huggingface_hub
 import numpy as np
 import torch
+
 from accelerate import Accelerator
 from datasets import DatasetDict
+from huggingface_hub import Repository, get_full_repo_name
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 from transformers import DataCollatorForSeq2Seq, MarianTokenizer, MarianMTModel, AdamW, get_scheduler
@@ -57,8 +59,10 @@ class FineTuning:
 
     def finetune_model(self,
                        tokenized_texts: DatasetDict,
-                       train_epochs: int = 3,
-                       batch_size: int = 16):
+                       train_epochs,
+                       batch_size,
+                       output_dir: str,
+                       repo: Repository):
         """Fine-tunes the model
         :param tokenized_texts: the tokenized datasets to use for fine-tuning
         :param train_epochs: the number of epochs to train for
@@ -139,18 +143,25 @@ class FineTuning:
             # Save and upload
             accelerator.wait_for_everyone()
             unwrapped_model = accelerator.unwrap_model(model)
-            output_dir = "finetuned"
             unwrapped_model.save_pretrained(output_dir, save_function=accelerator.save)
+            if accelerator.is_main_process:
+                self.tokenizer.save_pretrained(output_dir)
+                repo.push_to_hub(
+                    commit_message=f"Training in progress epoch {epoch}", blocking=False
+                )
 
 
 def main(hf_token: str):
     huggingface_hub.login(token=hf_token)
+    model_name = "helsinki-biomedical-finetuned"
+    repo_name = get_full_repo_name(model_name)
+    repo = Repository(model_name, repo_name)
 
-    biomedical_corpora = load_all_corpora("../corpus/train/", 0.2, 42)
+    biomedical_corpora = load_all_corpora("smalldata/", 0.2, 42)
 
     fine_tuning = FineTuning("Helsinki-NLP/opus-mt-en-es", 512)
     tokenized_texts = fine_tuning.tokenize_all_datasets(biomedical_corpora)
-    fine_tuning.finetune_model(tokenized_texts)
+    fine_tuning.finetune_model(tokenized_texts, 3, 16, model_name, repo)
 
 
 if __name__ == "__main__":
