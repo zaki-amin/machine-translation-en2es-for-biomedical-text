@@ -138,7 +138,7 @@ class FineTuning:
             lr_scheduler.step(avg_val_loss)
 
             results = self.metric.compute()
-            print(f"epoch {epoch}, BLEU score: {results['score']:.2f}")
+            print(f"Epoch {epoch + 1}, BLEU score: {results['score']:.2f}")
 
             # Save and upload
             accelerator.wait_for_everyone()
