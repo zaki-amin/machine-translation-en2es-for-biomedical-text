@@ -1,6 +1,7 @@
 import unittest
 
-from domain_adaptation.finetuning import FineTuning, load_corpus, get_all_filepaths
+from domain_adaptation.corpus import load_corpus
+from domain_adaptation.finetuning import FineTuning
 
 
 class TestFineTuning(unittest.TestCase):

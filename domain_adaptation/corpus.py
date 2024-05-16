@@ -1,6 +1,6 @@
 import os
 
-from datasets import DatasetDict, load_dataset
+from datasets import DatasetDict, load_dataset, concatenate_datasets
 
 
 def load_corpus(data_filename: str, validation_proportion: float, seed: int) -> DatasetDict:
@@ -21,8 +21,15 @@ def get_all_filepaths(directory_path: str) -> list[str]:
 
 
 def load_all_corpora(directory_path: str, validation_proportion: float, seed: int) -> DatasetDict:
-    """Loads all corpora in a directory into a single DatasetDict"""
-    all_datasets = DatasetDict()
+    """Loads all corpora in a directory and concatenates them into a single DatasetDict"""
+    concatenated_datasets = {}
     for filepath in get_all_filepaths(directory_path):
-        all_datasets = all_datasets.concatenate(load_corpus(filepath, validation_proportion, seed))
-    return all_datasets
+        corpus = load_corpus(filepath, validation_proportion, seed)
+        # Concatenate each key separately
+        for split in corpus.keys():
+            if split not in concatenated_datasets:
+                concatenated_datasets[split] = corpus[split]
+            else:
+                concatenated_datasets[split] = concatenate_datasets([concatenated_datasets[split], corpus[split]])
+
+    return DatasetDict(concatenated_datasets)
