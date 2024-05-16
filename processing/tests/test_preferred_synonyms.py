@@ -13,11 +13,6 @@ class TestPreferredSynonyms(unittest.TestCase):
         self.assertEqual(self.preferred_synonyms.synonyms_dictionary[original], ["absorciometría fotónica dual"],
                          "preferred synonym dictionary should map to 'absorciometría fotónica dual'")
 
-    def test_show_all_terms_with_multiple_synonyms(self):
-        for original, preferred in self.preferred_synonyms.synonyms_dictionary.items():
-            if len(preferred) > 1:
-                print(f"{original} -> {preferred}")
-
     def test_synonym_dictionary_ignores_one_word_synonyms(self):
         original = "ácido-base"
         self.assertNotIn("ácido-básico", self.preferred_synonyms.synonyms_dictionary[original],

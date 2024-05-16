@@ -21,7 +21,7 @@ class PreferredSynonyms:
                 original, primary = entry["sec"], entry["ppal"]
                 num_words = len(original.split())
                 if num_words >= 2:
-                    # Avoid over replacement by discarding single words
+                    # Avoid overreplacement by discarding single words
                     synonym_dict[original].append(primary)
         return synonym_dict
 
