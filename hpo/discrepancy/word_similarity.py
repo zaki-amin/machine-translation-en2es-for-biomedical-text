@@ -1,6 +1,6 @@
 import spacy
 
-from evaluation.utility.text_functions import word_split, trim_string
+from hpo.utility.text_functions import word_split, trim_string
 
 nlp = spacy.load("en_core_web_md")
 

@@ -1,6 +1,6 @@
 import pandas as pd
 
-from evaluation.utility.text_functions import trim_string
+from hpo.utility.text_functions import trim_string
 
 
 def read_official_translations(file: str, delimiter: str) -> pd.DataFrame:

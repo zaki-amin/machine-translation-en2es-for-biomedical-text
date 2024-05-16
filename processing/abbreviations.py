@@ -1,6 +1,6 @@
 import json
 
-from evaluation.official.string_similarity import SimilarityMetric
+from hpo.official.string_similarity import SimilarityMetric
 
 
 class Abbreviations:

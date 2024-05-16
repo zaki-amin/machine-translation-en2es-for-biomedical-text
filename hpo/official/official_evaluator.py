@@ -1,9 +1,9 @@
-from evaluation.official.expected_translations import read_official_translations
-from evaluation.official.string_similarity import SimilarityMetric
-from evaluation.translation.translation_model import model_results
+from hpo.official.expected_translations import read_official_translations
+from hpo.official.string_similarity import SimilarityMetric
+from hpo.translation.translation_model import model_results
 import pandas as pd
 
-from evaluation.utility.file_functions import save_to_csv
+from hpo.utility.file_functions import save_to_csv
 
 
 def evaluate_translation(hpo_id: str, labels: bool):

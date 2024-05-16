@@ -1,7 +1,7 @@
 import pandas as pd
 
-from evaluation.translation.translation_model import model_results
-from evaluation.wikidata.data_loading import parse_wikidata_json, WikidataHPO
+from hpo.translation.translation_model import model_results
+from hpo.wikidata.data_loading import parse_wikidata_json, WikidataHPO
 
 
 def evaluate_translation(hpo_id: str, just_labels: bool, wiki_translations_filename: str, spreadsheet: str = None):

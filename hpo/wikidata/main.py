@@ -1,6 +1,6 @@
 import argparse
 
-from evaluation.wikidata.wikidata_evaluator import evaluate_translation
+from hpo.wikidata.wikidata_evaluator import evaluate_translation
 
 
 def main():

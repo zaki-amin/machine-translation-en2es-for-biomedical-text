@@ -1,8 +1,8 @@
 import pandas as pd
 
-from evaluation.discrepancy.word_similarity import word_differences, most_similar_word
-from evaluation.official.string_similarity import SimilarityMetric
-from evaluation.utility.text_functions import trim_string
+from hpo.discrepancy.word_similarity import word_differences, most_similar_word
+from hpo.official.string_similarity import SimilarityMetric
+from hpo.utility.text_functions import trim_string
 
 
 def drop_similarity_metrics(df: pd.DataFrame) -> pd.DataFrame:

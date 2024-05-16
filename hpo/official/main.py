@@ -1,6 +1,6 @@
 import argparse
 
-from evaluation.official.official_evaluator import evaluate_translation
+from hpo.official.official_evaluator import evaluate_translation
 
 
 def main():
