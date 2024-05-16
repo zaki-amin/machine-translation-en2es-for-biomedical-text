@@ -15,7 +15,7 @@ class FineTuning:
         self.max_length = max_length
         self.model = MarianMTModel.from_pretrained(checkpoint_name)
         self.tokenizer = MarianTokenizer.from_pretrained(checkpoint_name)
-        # Using PyTorch
+        # Using PyTorch hence 'pt'
         self.data_collator = DataCollatorForSeq2Seq(tokenizer=self.tokenizer,
                                                     model=self.model,
                                                     max_length=max_length,
@@ -53,8 +53,13 @@ class FineTuning:
 
         return decoded_predictions, decoded_labels
 
-    def finetune_model(self, tokenized_texts: DatasetDict, batch_size=16):
-        """Fine-tunes the model on the tokenized texts using the specified batch size"""
+    def finetune_model(self,
+                       tokenized_texts: DatasetDict,
+                       train_epochs: int = 3,
+                       batch_size: int = 16):
+        """Fine-tunes the model
+        :param tokenized_texts: the tokenized datasets to use for fine-tuning
+        """
         tokenized_texts.set_format("torch")
         train_dataloader = DataLoader(
             tokenized_texts["train"],
@@ -73,19 +78,18 @@ class FineTuning:
             self.model, optimizer, train_dataloader, validation_dataloader
         )
 
-        num_train_epochs = 3
         num_update_steps_per_epoch = len(train_dataloader)
-        num_training_steps = num_train_epochs * num_update_steps_per_epoch
+        num_training_steps = train_epochs * num_update_steps_per_epoch
 
         lr_scheduler = get_scheduler(
-            "linear",
+            "reduce_lr_on_plateau",
             optimizer=optimizer,
             num_warmup_steps=0,
             num_training_steps=num_training_steps,
         )
 
         progress_bar = tqdm(range(num_training_steps))
-        for epoch in range(num_train_epochs):
+        for epoch in range(train_epochs):
             # Training
             model.train()
             for batch in train_dataloader:
@@ -94,32 +98,36 @@ class FineTuning:
                 accelerator.backward(loss)
 
                 optimizer.step()
-                lr_scheduler.step()
                 optimizer.zero_grad()
                 progress_bar.update(1)
 
             # Evaluation
             model.eval()
+            total_eval_loss = 0
             for batch in tqdm(eval_dataloader):
                 with torch.no_grad():
+                    outputs = model(**batch)
+                    loss = outputs.loss
+                    total_eval_loss += loss.item()
+
                     generated_tokens = accelerator.unwrap_model(model).generate(
                         batch["input_ids"],
                         attention_mask=batch["attention_mask"],
-                        max_length=128,
+                        max_length=self.max_length,
                     )
-                labels = batch["labels"]
 
-                # Necessary to pad predictions and labels for being gathered
+                labels = batch["labels"]
                 generated_tokens = accelerator.pad_across_processes(
                     generated_tokens, dim=1, pad_index=self.tokenizer.pad_token_id
                 )
                 labels = accelerator.pad_across_processes(labels, dim=1, pad_index=-100)
-
                 predictions_gathered = accelerator.gather(generated_tokens)
                 labels_gathered = accelerator.gather(labels)
-
                 decoded_preds, decoded_labels = self.postprocess(predictions_gathered, labels_gathered)
                 self.metric.add_batch(predictions=decoded_preds, references=decoded_labels)
+
+            avg_val_loss = total_eval_loss / len(eval_dataloader)
+            lr_scheduler.step(avg_val_loss)
 
             results = self.metric.compute()
             print(f"epoch {epoch}, BLEU score: {results['score']:.2f}")
@@ -145,7 +153,7 @@ def load_corpus(data_filename: str, validation_proportion: float, seed: int) -> 
 
 def main(hf_token: str):
     huggingface_hub.login(token=hf_token)
-    filepath = "../corpus/train/medline.jsonl"
+    filepath = "../corpus/train/khresmoi.jsonl"
     biomedical_texts = load_corpus(filepath, 0.2, 42)
     fine_tuning = FineTuning("Helsinki-NLP/opus-mt-en-es", 512)
     tokenized_texts = fine_tuning.tokenize_all_datasets(biomedical_texts)
