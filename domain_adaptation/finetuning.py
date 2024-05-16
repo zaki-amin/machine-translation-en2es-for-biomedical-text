@@ -3,10 +3,12 @@ import huggingface_hub
 import numpy as np
 import torch
 from accelerate import Accelerator
-from datasets import load_dataset, DatasetDict
+from datasets import DatasetDict
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 from transformers import DataCollatorForSeq2Seq, MarianTokenizer, MarianMTModel, AdamW, get_scheduler
+
+from domain_adaptation.corpus import load_all_corpora
 
 
 class FineTuning:
@@ -59,6 +61,8 @@ class FineTuning:
                        batch_size: int = 16):
         """Fine-tunes the model
         :param tokenized_texts: the tokenized datasets to use for fine-tuning
+        :param train_epochs: the number of epochs to train for
+        :param batch_size: the batch size to use for training and evaluation
         """
         tokenized_texts.set_format("torch")
         train_dataloader = DataLoader(
@@ -139,24 +143,13 @@ class FineTuning:
             unwrapped_model.save_pretrained(output_dir, save_function=accelerator.save)
 
 
-def load_corpus(data_filename: str, validation_proportion: float, seed: int) -> DatasetDict:
-    """Reads a JSONL file for a parallel corpus into a DatasetDict for fine-tuning
-    :param data_filename: path to the JSONL file containing the parallel corpus
-    :param validation_proportion: the proportion of the data to use for validation
-    :param seed: the random seed to use for splitting the data"""
-    training_data = load_dataset("json", data_files=data_filename)
-    train_proportion = 1 - validation_proportion
-    split_datasets = training_data["train"].train_test_split(train_size=train_proportion, seed=seed)
-    split_datasets["validation"] = split_datasets.pop("test")
-    return split_datasets
-
-
 def main(hf_token: str):
     huggingface_hub.login(token=hf_token)
-    filepath = "../corpus/train/khresmoi.jsonl"
-    biomedical_texts = load_corpus(filepath, 0.2, 42)
+
+    biomedical_corpora = load_all_corpora("../corpus/train/", 0.2, 42)
+
     fine_tuning = FineTuning("Helsinki-NLP/opus-mt-en-es", 512)
-    tokenized_texts = fine_tuning.tokenize_all_datasets(biomedical_texts)
+    tokenized_texts = fine_tuning.tokenize_all_datasets(biomedical_corpora)
     fine_tuning.finetune_model(tokenized_texts)
 
 

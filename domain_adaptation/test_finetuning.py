@@ -1,21 +1,12 @@
 import unittest
 
-from domain_adaptation.finetuning import FineTuning, load_corpus
+from domain_adaptation.finetuning import FineTuning, load_corpus, get_all_filepaths
 
 
 class TestFineTuning(unittest.TestCase):
     fine_tuning = FineTuning("Helsinki-NLP/opus-mt-en-es", 512)
     filepath = "../corpus/train/medline.jsonl"
     data = load_corpus(filepath, 0.2, 42)
-
-    def test_data_loads_correctly(self):
-        first_train_example = self.data["train"][0]
-        self.assertEqual(first_train_example["en"], "Shin splints.")
-        self.assertEqual(first_train_example["es"], "Dolor en las espinillas.")
-
-        first_validation_example = self.data["validation"][0]
-        self.assertEqual(first_validation_example["en"], "Micrognathia.")
-        self.assertEqual(first_validation_example["es"], "Micrognacia.")
 
     def test_tokenizer_transforms_text(self):
         text = ("Underterminate colitis designates a rare inflammatory bowel disease that clinically resembles Crohn's "
