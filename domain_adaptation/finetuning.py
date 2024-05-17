@@ -2,34 +2,27 @@ import evaluate
 import huggingface_hub
 import numpy as np
 import torch
-
 from accelerate import Accelerator
 from datasets import DatasetDict
 from huggingface_hub import Repository, get_full_repo_name
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
-from transformers import DataCollatorForSeq2Seq, MarianTokenizer, MarianMTModel, AdamW, get_scheduler, GenerationConfig, \
-    MarianConfig
+from transformers import DataCollatorForSeq2Seq, MarianTokenizer, MarianMTModel, AdamW, get_scheduler, GenerationConfig
 
 from domain_adaptation.corpus import load_all_corpora
 
 
 class FineTuning:
-    def __init__(self, checkpoint_name: str, max_length: int):
+    def __init__(self, checkpoint_name: str):
         self.checkpoint_name = checkpoint_name
-        self.max_length = max_length
 
         self.generation_config = generation_config()
-        config = MarianConfig.from_pretrained(checkpoint_name)
-        config.generation_config_path = './generation_config'
-        self.model = MarianMTModel.from_pretrained(checkpoint_name,
-                                                   generation_config=self.generation_config,
-                                                   device_map=cuda_if_possible())
+        self.model = MarianMTModel.from_pretrained(checkpoint_name, device_map=cuda_if_possible())
         self.tokenizer = MarianTokenizer.from_pretrained(checkpoint_name)
         # Using PyTorch hence 'pt'
         self.data_collator = DataCollatorForSeq2Seq(tokenizer=self.tokenizer,
                                                     model=self.model,
-                                                    max_length=max_length,
+                                                    max_length=self.generation_config.max_length,
                                                     return_tensors="pt")
         self.metric = evaluate.load("sacrebleu")
 
@@ -38,7 +31,7 @@ class FineTuning:
         return self.tokenizer(
             examples["en"],
             text_target=examples["es"],
-            max_length=self.max_length,
+            max_length=self.generation_config.max_length,
             padding="max_length",
             truncation=True,
         )
@@ -134,7 +127,10 @@ class FineTuning:
                     generated_tokens = accelerator.unwrap_model(model).generate(
                         batch["input_ids"],
                         attention_mask=batch["attention_mask"],
-                        max_length=self.max_length,
+                        max_length=self.generation_config.max_length,
+                        num_beams=self.generation_config.num_beams,
+                        bad_words_ids=self.generation_config.bad_words_ids,
+                        forced_eos_token_id=self.generation_config.forced_eos_token_id,
                     )
 
                 labels = batch["labels"]
@@ -197,7 +193,7 @@ def main(hf_token: str):
     repo.git_pull()
 
     biomedical_corpora = load_all_corpora("smalldata/", 0.1, 42)
-    fine_tuning = FineTuning("Helsinki-NLP/opus-mt-en-es", 512)
+    fine_tuning = FineTuning("Helsinki-NLP/opus-mt-en-es")
     epoch_results = fine_tuning.finetune_model(biomedical_corpora, 3, 2e-6, 16, model_name, repo)
     print(epoch_results)
 
