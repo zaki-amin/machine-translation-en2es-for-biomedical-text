@@ -17,7 +17,8 @@ class FineTuning:
     def __init__(self, checkpoint_name: str, max_length: int):
         self.checkpoint_name = checkpoint_name
         self.max_length = max_length
-        self.model = MarianMTModel.from_pretrained(checkpoint_name)
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.model = MarianMTModel.from_pretrained(checkpoint_name, device_map=device)
         self.tokenizer = MarianTokenizer.from_pretrained(checkpoint_name)
         # Using PyTorch hence 'pt'
         self.data_collator = DataCollatorForSeq2Seq(tokenizer=self.tokenizer,
