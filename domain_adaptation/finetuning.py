@@ -18,10 +18,13 @@ class FineTuning:
     def __init__(self, checkpoint_name: str, max_length: int):
         self.checkpoint_name = checkpoint_name
         self.max_length = max_length
+
         self.generation_config = generation_config()
         config = MarianConfig.from_pretrained(checkpoint_name)
         config.generation_config_path = './generation_config'
-        self.model = MarianMTModel.from_pretrained(checkpoint_name, config=config, device_map=cuda_if_possible())
+        self.model = MarianMTModel.from_pretrained(checkpoint_name,
+                                                   generation_config=self.generation_config,
+                                                   device_map=cuda_if_possible())
         self.tokenizer = MarianTokenizer.from_pretrained(checkpoint_name)
         # Using PyTorch hence 'pt'
         self.data_collator = DataCollatorForSeq2Seq(tokenizer=self.tokenizer,
