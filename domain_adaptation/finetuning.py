@@ -8,7 +8,8 @@ from datasets import DatasetDict
 from huggingface_hub import Repository, get_full_repo_name
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
-from transformers import DataCollatorForSeq2Seq, MarianTokenizer, MarianMTModel, AdamW, get_scheduler
+from transformers import DataCollatorForSeq2Seq, MarianTokenizer, MarianMTModel, AdamW, get_scheduler, GenerationConfig, \
+    MarianConfig
 
 from domain_adaptation.corpus import load_all_corpora
 
@@ -17,8 +18,11 @@ class FineTuning:
     def __init__(self, checkpoint_name: str, max_length: int):
         self.checkpoint_name = checkpoint_name
         self.max_length = max_length
+        generation_config()
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.model = MarianMTModel.from_pretrained(checkpoint_name, device_map=device)
+        config = MarianConfig.from_pretrained(checkpoint_name)
+        config.generation_config_path = './generation_config'
+        self.model = MarianMTModel.from_pretrained(checkpoint_name, config=config, device_map=device)
         self.tokenizer = MarianTokenizer.from_pretrained(checkpoint_name)
         # Using PyTorch hence 'pt'
         self.data_collator = DataCollatorForSeq2Seq(tokenizer=self.tokenizer,
@@ -60,14 +64,17 @@ class FineTuning:
 
     def finetune_model(self,
                        tokenized_texts: DatasetDict,
-                       train_epochs,
-                       batch_size,
+                       train_epochs: int,
+                       batch_size: int,
                        output_dir: str,
-                       repo: Repository):
+                       repo: Repository) -> list[tuple[int, float]]:
         """Fine-tunes the model
         :param tokenized_texts: the tokenized datasets to use for fine-tuning
         :param train_epochs: the number of epochs to train for
         :param batch_size: the batch size to use for training and evaluation
+        :param output_dir: the directory to save the model to
+        :param repo: the Hugging Face repository to push the model to
+        :return: a list of tuples containing the epoch and BLEU score
         """
         tokenized_texts.set_format("torch")
         train_dataloader = DataLoader(
@@ -97,6 +104,7 @@ class FineTuning:
             num_training_steps=num_training_steps,
         )
 
+        epoch_results = []
         progress_bar = tqdm(range(num_training_steps))
         for epoch in range(train_epochs):
             # Training
@@ -140,6 +148,7 @@ class FineTuning:
 
             results = self.metric.compute()
             print(f"Epoch {epoch + 1}, BLEU score: {results['score']:.2f}")
+            epoch_results.append((epoch + 1, results["score"]))
 
             # Save and upload
             accelerator.wait_for_everyone()
@@ -151,6 +160,17 @@ class FineTuning:
                     commit_message=f"Training in progress epoch {epoch}", blocking=False
                 )
 
+        return epoch_results
+
+
+def generation_config():
+    gen_config = GenerationConfig()
+    gen_config.max_length = 512
+    gen_config.num_beams = 4
+    gen_config.bad_words_ids = [[65000]]
+    gen_config.forced_eos_token_id = 0
+
+    gen_config.save_pretrained('./generation_config')
 
 def main(hf_token: str):
     huggingface_hub.login(token=hf_token)
@@ -162,7 +182,8 @@ def main(hf_token: str):
 
     fine_tuning = FineTuning("Helsinki-NLP/opus-mt-en-es", 512)
     tokenized_texts = fine_tuning.tokenize_all_datasets(biomedical_corpora)
-    fine_tuning.finetune_model(tokenized_texts, 3, 16, model_name, repo)
+    epoch_results = fine_tuning.finetune_model(tokenized_texts, 10, 32, model_name, repo)
+    print(epoch_results)
 
 
 if __name__ == "__main__":
