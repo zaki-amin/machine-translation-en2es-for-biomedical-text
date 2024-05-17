@@ -18,11 +18,10 @@ class FineTuning:
     def __init__(self, checkpoint_name: str, max_length: int):
         self.checkpoint_name = checkpoint_name
         self.max_length = max_length
-        generation_config()
-        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.generation_config = generation_config()
         config = MarianConfig.from_pretrained(checkpoint_name)
         config.generation_config_path = './generation_config'
-        self.model = MarianMTModel.from_pretrained(checkpoint_name, config=config, device_map=device)
+        self.model = MarianMTModel.from_pretrained(checkpoint_name, config=config, device_map=cuda_if_possible())
         self.tokenizer = MarianTokenizer.from_pretrained(checkpoint_name)
         # Using PyTorch hence 'pt'
         self.data_collator = DataCollatorForSeq2Seq(tokenizer=self.tokenizer,
@@ -37,7 +36,7 @@ class FineTuning:
             examples["en"],
             text_target=examples["es"],
             max_length=self.max_length,
-            padding=True,
+            padding="max_length",
             truncation=True,
         )
 
@@ -65,13 +64,15 @@ class FineTuning:
     def finetune_model(self,
                        tokenized_texts: DatasetDict,
                        train_epochs: int,
+                       learning_rate: float,
                        batch_size: int,
                        output_dir: str,
-                       repo: Repository) -> list[tuple[int, float]]:
+                       repo: Repository, ) -> list[tuple[int, float]]:
         """Fine-tunes the model
         :param tokenized_texts: the tokenized datasets to use for fine-tuning
         :param train_epochs: the number of epochs to train for
         :param batch_size: the batch size to use for training and evaluation
+        :param learning_rate: the learning rate to use for training
         :param output_dir: the directory to save the model to
         :param repo: the Hugging Face repository to push the model to
         :return: a list of tuples containing the epoch and BLEU score
@@ -88,7 +89,7 @@ class FineTuning:
             collate_fn=self.data_collator,
             batch_size=batch_size,
         )
-        optimizer = AdamW(self.model.parameters(), lr=2e-5)
+        optimizer = AdamW(self.model.parameters(), lr=learning_rate)
         accelerator = Accelerator()
         model, optimizer, train_dataloader, eval_dataloader = accelerator.prepare(
             self.model, optimizer, train_dataloader, validation_dataloader
@@ -153,6 +154,7 @@ class FineTuning:
             # Save and upload
             accelerator.wait_for_everyone()
             unwrapped_model = accelerator.unwrap_model(model)
+            self.generation_config.save_pretrained(output_dir, push_to_hub=True)
             unwrapped_model.save_pretrained(output_dir, save_function=accelerator.save)
             if accelerator.is_main_process:
                 self.tokenizer.save_pretrained(output_dir)
@@ -163,7 +165,14 @@ class FineTuning:
         return epoch_results
 
 
-def generation_config():
+def cuda_if_possible():
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        return "cuda"
+    return "cpu"
+
+
+def generation_config() -> GenerationConfig:
     gen_config = GenerationConfig()
     gen_config.max_length = 512
     gen_config.num_beams = 4
@@ -171,18 +180,20 @@ def generation_config():
     gen_config.forced_eos_token_id = 0
 
     gen_config.save_pretrained('./generation_config')
+    return gen_config
+
 
 def main(hf_token: str):
     huggingface_hub.login(token=hf_token)
     model_name = "helsinki-biomedical-finetuned"
     repo_name = get_full_repo_name(model_name)
     repo = Repository(model_name, repo_name)
+    repo.git_pull()
 
     biomedical_corpora = load_all_corpora("smalldata/", 0.2, 42)
-
     fine_tuning = FineTuning("Helsinki-NLP/opus-mt-en-es", 512)
     tokenized_texts = fine_tuning.tokenize_all_datasets(biomedical_corpora)
-    epoch_results = fine_tuning.finetune_model(tokenized_texts, 10, 32, model_name, repo)
+    epoch_results = fine_tuning.finetune_model(tokenized_texts, 3, 2e-6, 16, model_name, repo)
     print(epoch_results)
 
 
