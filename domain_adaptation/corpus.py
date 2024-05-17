@@ -10,9 +10,14 @@ def load_corpus(data_filename: str, validation_proportion: float, seed: int) -> 
     :param seed: the random seed to use for splitting the data"""
     training_data = load_dataset("json", data_files=data_filename)
     train_proportion = 1 - validation_proportion
-    split_datasets = training_data["train"].train_test_split(train_size=train_proportion, seed=seed)
-    split_datasets["validation"] = split_datasets.pop("test")
-    return split_datasets
+    datasets = training_data["train"].train_test_split(train_size=train_proportion, seed=seed)
+    datasets["validation"] = datasets.pop("test")
+
+    # Shuffle all the data
+    for dataset in datasets.keys():
+        datasets[dataset] = datasets[dataset].shuffle(seed=seed)
+
+    return datasets
 
 
 def get_all_filepaths(directory_path: str) -> list[str]:

@@ -42,11 +42,11 @@ class FineTuning:
 
     def tokenize_all_datasets(self, data: DatasetDict) -> DatasetDict:
         """Applies tokenization pre-processing to all datasets"""
-        return data.map(
-            lambda examples: self.preprocess_with_tokens(examples),
-            batched=True,
-            remove_columns=data["train"].column_names,
-        )
+        tokenized = data.map(lambda examples: self.preprocess_with_tokens(examples),
+                             batched=True,
+                             remove_columns=data["train"].column_names)
+        tokenized.set_format("torch")
+        return tokenized
 
     def postprocess(self, predictions: torch.Tensor, labels: torch.Tensor):
         predictions = predictions.cpu().numpy()
@@ -58,18 +58,17 @@ class FineTuning:
         labels = np.where(labels != -100, labels, self.tokenizer.pad_token_id)
         decoded_labels = self.tokenizer.batch_decode(labels, skip_special_tokens=True)
         decoded_labels = [[label.strip()] for label in decoded_labels]
-
         return decoded_predictions, decoded_labels
 
     def finetune_model(self,
-                       tokenized_texts: DatasetDict,
+                       corpora: DatasetDict,
                        train_epochs: int,
                        learning_rate: float,
                        batch_size: int,
                        output_dir: str,
-                       repo: Repository, ) -> list[tuple[int, float]]:
+                       repo: Repository) -> list[tuple[int, float]]:
         """Fine-tunes the model
-        :param tokenized_texts: the tokenized datasets to use for fine-tuning
+        :param corpora: the datasets to fine-tune the model on
         :param train_epochs: the number of epochs to train for
         :param batch_size: the batch size to use for training and evaluation
         :param learning_rate: the learning rate to use for training
@@ -77,7 +76,7 @@ class FineTuning:
         :param repo: the Hugging Face repository to push the model to
         :return: a list of tuples containing the epoch and BLEU score
         """
-        tokenized_texts.set_format("torch")
+        tokenized_texts = self.tokenize_all_datasets(corpora)
         train_dataloader = DataLoader(
             tokenized_texts["train"],
             shuffle=True,
@@ -89,6 +88,7 @@ class FineTuning:
             collate_fn=self.data_collator,
             batch_size=batch_size,
         )
+
         optimizer = AdamW(self.model.parameters(), lr=learning_rate)
         accelerator = Accelerator()
         model, optimizer, train_dataloader, eval_dataloader = accelerator.prepare(
@@ -151,21 +151,24 @@ class FineTuning:
             print(f"Epoch {epoch + 1}, BLEU score: {results['score']:.2f}")
             epoch_results.append((epoch + 1, results["score"]))
 
-            # Save and upload
-            accelerator.wait_for_everyone()
-            unwrapped_model = accelerator.unwrap_model(model)
-            self.generation_config.save_pretrained(output_dir, push_to_hub=True)
-            unwrapped_model.save_pretrained(output_dir, save_function=accelerator.save)
-            if accelerator.is_main_process:
-                self.tokenizer.save_pretrained(output_dir)
-                repo.push_to_hub(
-                    commit_message=f"Training in progress epoch {epoch}", blocking=False
-                )
+            self.save_and_upload(accelerator, epoch, model, output_dir, repo)
 
         return epoch_results
 
+    def save_and_upload(self, accelerator, epoch, model, output_dir, repo):
+        accelerator.wait_for_everyone()
+        unwrapped_model = accelerator.unwrap_model(model)
+        self.generation_config.save_pretrained(output_dir, push_to_hub=True)
+        unwrapped_model.save_pretrained(output_dir, save_function=accelerator.save)
+        if accelerator.is_main_process:
+            self.tokenizer.save_pretrained(output_dir)
+            repo.push_to_hub(
+                commit_message=f"Training in progress epoch {epoch}", blocking=False
+            )
 
-def cuda_if_possible():
+
+def cuda_if_possible() -> str:
+    """If a GPU is available, empties cache and returns 'cuda', otherwise returns 'cpu'"""
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
         return "cuda"
@@ -190,10 +193,9 @@ def main(hf_token: str):
     repo = Repository(model_name, repo_name)
     repo.git_pull()
 
-    biomedical_corpora = load_all_corpora("smalldata/", 0.2, 42)
+    biomedical_corpora = load_all_corpora("smalldata/", 0.1, 42)
     fine_tuning = FineTuning("Helsinki-NLP/opus-mt-en-es", 512)
-    tokenized_texts = fine_tuning.tokenize_all_datasets(biomedical_corpora)
-    epoch_results = fine_tuning.finetune_model(tokenized_texts, 3, 2e-6, 16, model_name, repo)
+    epoch_results = fine_tuning.finetune_model(biomedical_corpora, 3, 2e-6, 16, model_name, repo)
     print(epoch_results)
 
 
