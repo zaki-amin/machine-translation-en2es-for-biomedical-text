@@ -23,14 +23,14 @@ def shuffle_and_split(input_jsonl: str,
                                                             spanish,
                                                             test_size=test_proportion,
                                                             random_state=seed)
-    with open(f"{output_name}_train.jsonl", 'w') as train:
+    with open(f"{output_name}-tr.jsonl", 'w') as train:
         for en, es in zip(en_train, es_train):
             train.write(json.dumps({"en": en, "es": es}) + "\n")
-    with open(f"{output_name}_test.jsonl", 'w') as test:
+    with open(f"{output_name}-te.jsonl", 'w') as test:
         for en, es in zip(en_test, es_test):
             test.write(json.dumps({"en": en, "es": es}) + "\n")
 
 
 if __name__ == '__main__':
-    input_filename = "/Users/zaki/PycharmProjects/hpo_translation/corpus/test/clinspen.jsonl"
-    shuffle_and_split(input_filename, 0.15, 64, "clinspen")
+    input_filename = "orphanet_definitions.jsonl"
+    shuffle_and_split(input_filename, 0.1, 64, "orphanet-definitions")
