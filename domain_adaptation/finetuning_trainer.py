@@ -42,9 +42,11 @@ class FineTuningTrainer(FineTuning):
             compute_metrics=self.compute_metrics,
         )
 
-        print(trainer.evaluate(max_length=self.generation_config.max_length))
+        initial_results = trainer.evaluate(max_length=self.generation_config.max_length)
+        print(f"Initial eval_bleu: {initial_results['eval_bleu']}")
         trainer.train()
-        print(trainer.evaluate(max_length=self.generation_config.max_length))
+        final_results = trainer.evaluate(max_length=self.generation_config.max_length)
+        print(f"Final eval_bleu: {final_results['eval_bleu']}")
         trainer.push_to_hub(tags="translation", commit_message="Training complete")
 
     def compute_metrics(self, eval_preds):
@@ -84,5 +86,5 @@ def main(hf_token: str,
 if __name__ == "__main__":
     train_directory = "smalldata/"
     token = "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"
-    epochs, lr, batch_size = 10, 2e-5, 8
+    epochs, lr, batch_size = 15, 2e-6, 8
     main(token, train_directory, epochs, lr, batch_size, batch_size * 2)
