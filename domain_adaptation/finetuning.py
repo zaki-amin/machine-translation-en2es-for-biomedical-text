@@ -185,19 +185,27 @@ def generation_config() -> GenerationConfig:
     return gen_config
 
 
-def main(hf_token: str):
+def main(hf_token: str, train_filepath: str, epochs: int, lr: float, batch_size: int):
+    model_name, repo = login_and_get_repo(hf_token)
+
+    biomedical_corpora = load_all_corpora(train_filepath, 0.1, 42)
+    fine_tuning = FineTuning("Helsinki-NLP/opus-mt-en-es")
+    epoch_results = fine_tuning.finetune_model(biomedical_corpora, epochs, lr, batch_size, model_name, repo)
+    print(epoch_results)
+
+
+def login_and_get_repo(hf_token: str):
     huggingface_hub.login(token=hf_token)
     model_name = "helsinki-biomedical-finetuned"
     repo_name = get_full_repo_name(model_name)
     repo = Repository(model_name, repo_name)
     repo.git_pull()
-
-    biomedical_corpora = load_all_corpora("smalldata/", 0.1, 42)
-    fine_tuning = FineTuning("Helsinki-NLP/opus-mt-en-es")
-    epoch_results = fine_tuning.finetune_model(biomedical_corpora, 3, 2e-6, 16, model_name, repo)
-    print(epoch_results)
+    return model_name, repo
 
 
 if __name__ == "__main__":
+    # train_directory = "smalldata/"
+    train_directory = "/home/zakiamin/PycharmProjects/hpo_translation/corpus/train"
     token = "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"
-    main(token)
+    epochs, lr, batch_size = 3, 2e-6, 8
+    main(token, train_directory, epochs, lr, batch_size)
