@@ -13,11 +13,13 @@ def load_corpus(data_filename: str, validation_proportion: float, seed: int) -> 
     datasets = training_data["train"].train_test_split(train_size=train_proportion, seed=seed)
     datasets["validation"] = datasets.pop("test")
 
-    # Shuffle all the data
+    shuffle_dataset_dict(datasets, seed)
+    return datasets
+
+
+def shuffle_dataset_dict(datasets, seed):
     for dataset in datasets.keys():
         datasets[dataset] = datasets[dataset].shuffle(seed=seed)
-
-    return datasets
 
 
 def get_all_filepaths(directory_path: str) -> list[str]:
@@ -37,4 +39,6 @@ def load_all_corpora(directory_path: str, validation_proportion: float, seed: in
             else:
                 concatenated_datasets[split] = concatenate_datasets([concatenated_datasets[split], corpus[split]])
 
-    return DatasetDict(concatenated_datasets)
+    large_dataset_dict = DatasetDict(concatenated_datasets)
+    shuffle_dataset_dict(large_dataset_dict, seed + 1)
+    return large_dataset_dict
