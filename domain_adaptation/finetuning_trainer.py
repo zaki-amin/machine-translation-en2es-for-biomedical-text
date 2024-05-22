@@ -20,7 +20,7 @@ class FineTuningTrainer(FineTuning):
         tokenized_texts = self.tokenize_all_datasets(corpora)
         args = Seq2SeqTrainingArguments(
             model_name,
-            evaluation_strategy="yes",
+            evaluation_strategy="epoch",
             save_strategy="epoch",
             learning_rate=lr,
             per_device_train_batch_size=train_batch_size,
@@ -84,5 +84,5 @@ def main(hf_token: str,
 if __name__ == "__main__":
     train_directory = "smalldata/"
     token = "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"
-    epochs, lr, batch_size = 3, 2e-6, 8
+    epochs, lr, batch_size = 10, 2e-5, 8
     main(token, train_directory, epochs, lr, batch_size, batch_size * 2)
