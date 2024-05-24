@@ -31,6 +31,7 @@ class FineTuningTrainer(FineTuning):
             predict_with_generate=True,
             fp16=True,
             push_to_hub=True,
+            gradient_accumulation_steps=2,
         )
         trainer = Seq2SeqTrainer(
             self.model,
@@ -84,7 +85,8 @@ def main(hf_token: str,
 
 
 if __name__ == "__main__":
-    train_directory = "smalldata/"
+    # train_directory = "smalldata/"
+    train_directory = "/home/zakiamin/PycharmProjects/hpo_translation/corpus/train/"
     token = "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"
-    epochs, lr, batch_size = 15, 2e-6, 8
+    epochs, lr, batch_size = 15, 5e-7, 8
     main(token, train_directory, epochs, lr, batch_size, batch_size * 2)
