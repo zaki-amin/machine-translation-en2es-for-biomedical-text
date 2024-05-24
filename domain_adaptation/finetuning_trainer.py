@@ -1,6 +1,7 @@
+import numpy as np
+import torch
 from datasets import DatasetDict
 from transformers import Seq2SeqTrainingArguments, Seq2SeqTrainer
-import numpy as np
 
 from domain_adaptation.corpus import load_all_corpora
 from domain_adaptation.finetuning import FineTuning, login_and_get_repo
@@ -25,6 +26,7 @@ class FineTuningTrainer(FineTuning):
             learning_rate=lr,
             per_device_train_batch_size=train_batch_size,
             per_device_eval_batch_size=eval_batch_size,
+            lr_scheduler_type="cosine_with_warmup",
             weight_decay=0.01,
             save_total_limit=3,
             num_train_epochs=epochs,
@@ -88,5 +90,7 @@ if __name__ == "__main__":
     # train_directory = "smalldata/"
     train_directory = "/home/zakiamin/PycharmProjects/hpo_translation/corpus/train/"
     token = "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"
-    epochs, lr, batch_size = 15, 5e-7, 8
+    seed = 17
+    torch.manual_seed(seed)
+    epochs, lr, batch_size = 20, 1e-6, 8
     main(token, train_directory, epochs, lr, batch_size, batch_size * 2)
