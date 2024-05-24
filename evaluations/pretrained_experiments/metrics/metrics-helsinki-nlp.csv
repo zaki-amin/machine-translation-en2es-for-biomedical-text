@@ -1,0 +1,9 @@
+model,filename,sacrebleu,wer,semsim
+helsinki-nlp,orphanet-definitions-tr.csv,45.5,53.3,93.6
+helsinki-nlp,clinspen-tr.csv,38.8,48.2,92.2
+helsinki-nlp,orphanet-terms.csv,43.6,58.0,94.5
+helsinki-nlp,abstracts-tr.csv,43.1,47.9,92.3
+helsinki-nlp,medline.csv,54.4,63.8,93.7
+helsinki-nlp,khresmoi-tr.csv,47.9,60.0,95.5
+helsinki-nlp,snomed.csv,28.1,28.1,81.4
+helsinki-nlp,preferred-en2es.csv,26.2,38.5,87.0

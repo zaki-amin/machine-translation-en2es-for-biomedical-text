@@ -1,0 +1,9 @@
+model,filename,sacrebleu,wer,semsim
+madlad,orphanet-definitions-tr.csv,50.6,56.5,93.9
+madlad,clinspen-tr.csv,38.6,41.9,90.7
+madlad,orphanet-terms.csv,50.3,63.9,95.5
+madlad,abstracts-tr.csv,45.7,50.5,92.6
+madlad,medline.csv,56.3,65.1,94.0
+madlad,khresmoi-tr.csv,48.3,60.8,95.5
+madlad,snomed.csv,31.5,30.3,82.1
+madlad,preferred-en2es.csv,16.1,15.5,84.7

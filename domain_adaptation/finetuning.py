@@ -62,7 +62,8 @@ class FineTuning:
                        learning_rate: float,
                        batch_size: int,
                        output_dir: str,
-                       repo: Repository) -> list[tuple[int, float]]:
+                       repo: Repository,
+                       seed: int = 17) -> list[tuple[int, float]]:
         """Fine-tunes the model
         :param corpora: the datasets to fine-tune the model on
         :param train_epochs: the number of epochs to train for
@@ -70,9 +71,11 @@ class FineTuning:
         :param learning_rate: the learning rate to use for training
         :param output_dir: the directory to save the model to
         :param repo: the Hugging Face repository to push the model to
+        :param seed: the random seed to use for reproducibility
         :return: a list of tuples containing the epoch and BLEU score
         """
         tokenized_texts = self.tokenize_all_datasets(corpora)
+        torch.manual_seed(seed)
         train_dataloader = DataLoader(
             tokenized_texts["train"],
             shuffle=True,
