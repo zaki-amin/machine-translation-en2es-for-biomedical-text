@@ -8,7 +8,7 @@ from domain_adaptation.finetuning_trainer import FineTuningTrainer
 def main(hf_token: str,
          train_filepath: str,
          epochs_per_corpus: int,
-         lr: float,
+         lrs: dict[str, float],
          train_batch_size: int,
          eval_batch_size: int):
     model_name, repo = login_and_get_repo(hf_token)
@@ -27,7 +27,7 @@ def main(hf_token: str,
         corpus = load_corpus(full_filename, 0.1, 42)
         trainer_fine_tuning.finetune_with_trainer(corpus,
                                                   model_name,
-                                                  lr,
+                                                  lrs[filename],
                                                   train_batch_size,
                                                   eval_batch_size,
                                                   epochs_per_corpus)
@@ -38,5 +38,14 @@ if __name__ == "__main__":
     token = "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"
     seed = 17
     torch.manual_seed(seed)
-    epochs_per_corpus, lr, batch_size = 3, 1e-6, 8
-    main(token, train_directory, epochs_per_corpus, lr, batch_size, batch_size * 2)
+    epochs_per_corpus, batch_size = 3, 8
+    # smaller datasets with larger learning rates
+    lrs = {"abstracts-tr": 1e-6,
+           "clinspen-tr": 5e-7,
+           "khresmoi-tr": 1.5e-6,
+           "medline": 5e-7,
+           "orphanet-definitions-tr": 1e-6,
+           "orphanet-terms": 5e-7,
+           "preferred-en2es": 1e-7,
+           "snomed": 5e-7}
+    main(token, train_directory, epochs_per_corpus, lrs, batch_size, batch_size * 2)
