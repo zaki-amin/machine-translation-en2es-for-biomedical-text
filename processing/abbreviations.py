@@ -48,7 +48,7 @@ class Abbreviations:
                                    acronym: str,
                                    phrase: str,
                                    lang: str,
-                                   similarity_threshold: float = 0.4) -> str:
+                                   similarity_threshold: float = 0.8) -> str:
         """Chooses the most appropriate expansion for an acronym.
         No possible expansion returns the acronym as is
         Otherwise, returns the most appropriate expansion based on semantic similarity in the phrase context
@@ -67,9 +67,9 @@ class Abbreviations:
             return expansions[0]
 
         best_expansion = expansions[0]
-        best_similarity = self.semantic_similarity.evaluate(phrase, best_expansion)
+        best_similarity = self.semantic_similarity.evaluate(phrase, phrase.replace(acronym, expansions[0]))
         for expansion in expansions[1:]:
-            similarity = self.semantic_similarity.evaluate(phrase, expansion)
+            similarity = self.semantic_similarity.evaluate(phrase, phrase.replace(acronym, expansion))
             if similarity > best_similarity:
                 best_similarity = similarity
                 best_expansion = expansion
