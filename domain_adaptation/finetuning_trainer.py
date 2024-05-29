@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 from datasets import DatasetDict
-from transformers import Seq2SeqTrainingArguments, Seq2SeqTrainer
+from transformers import Seq2SeqTrainingArguments, Seq2SeqTrainer, Adafactor
 
 from domain_adaptation.corpus import load_all_corpora
 from domain_adaptation.finetuning import FineTuning, login_and_get_repo
@@ -45,6 +45,7 @@ class FineTuningTrainer(FineTuning):
             data_collator=self.data_collator,
             tokenizer=self.tokenizer,
             compute_metrics=self.compute_metrics,
+            optimizers=(Adafactor(self.model.parameters()), None),
         )
 
         trainer.train()
