@@ -8,8 +8,9 @@ from domain_adaptation.finetuning import FineTuning, login_and_get_repo
 
 
 class FineTuningTrainer(FineTuning):
-    def __init__(self, checkpoint_name: str):
+    def __init__(self, checkpoint_name: str, device: str):
         super().__init__(checkpoint_name)
+        self.device = device
 
     def finetune_with_trainer(self,
                               corpora: DatasetDict,
@@ -26,17 +27,18 @@ class FineTuningTrainer(FineTuning):
             learning_rate=lr,
             per_device_train_batch_size=train_batch_size,
             per_device_eval_batch_size=eval_batch_size,
-            lr_scheduler_type="cosine_with_warmup",
+            lr_scheduler_type="reduce_lr_on_plateau",
+            metric_for_best_model="eval_loss",
             weight_decay=0.01,
             save_total_limit=3,
             num_train_epochs=epochs,
             predict_with_generate=True,
             fp16=True,
             push_to_hub=True,
-            gradient_accumulation_steps=2,
+            gradient_accumulation_steps=4,
         )
         trainer = Seq2SeqTrainer(
-            self.model,
+            self.model.to(self.device),
             args,
             train_dataset=tokenized_texts["train"],
             eval_dataset=tokenized_texts["validation"],
@@ -45,8 +47,6 @@ class FineTuningTrainer(FineTuning):
             compute_metrics=self.compute_metrics,
         )
 
-        initial_results = trainer.evaluate(max_length=self.generation_config.max_length)
-        print(f"Initial eval_bleu: {initial_results['eval_bleu']}")
         trainer.train()
         final_results = trainer.evaluate(max_length=self.generation_config.max_length)
         print(f"Final eval_bleu: {final_results['eval_bleu']}")
@@ -74,10 +74,11 @@ def main(hf_token: str,
          epochs: int,
          lr: float,
          train_batch_size: int,
-         eval_batch_size: int):
+         eval_batch_size: int,
+         device: str):
     model_name, repo = login_and_get_repo(hf_token)
     biomedical_corpora = load_all_corpora(train_filepath, 0.1, 42)
-    trainer_fine_tuning = FineTuningTrainer("Helsinki-NLP/opus-mt-en-es")
+    trainer_fine_tuning = FineTuningTrainer("Helsinki-NLP/opus-mt-en-es", device)
     trainer_fine_tuning.finetune_with_trainer(biomedical_corpora,
                                               model_name,
                                               lr,
@@ -92,5 +93,8 @@ if __name__ == "__main__":
     token = "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"
     seed = 17
     torch.manual_seed(seed)
-    epochs, lr, batch_size = 20, 1e-6, 8
-    main(token, train_directory, epochs, lr, batch_size, batch_size * 2)
+    epochs, lr, batch_size = 25, 1.5e-6, 8
+    # Check if GPU is available
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"Device: {device}")
+    main(token, train_directory, epochs, lr, batch_size, batch_size * 2, device)
