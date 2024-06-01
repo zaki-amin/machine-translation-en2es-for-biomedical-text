@@ -40,12 +40,14 @@ if __name__ == "__main__":
     torch.manual_seed(seed)
     epochs_per_corpus, batch_size = 3, 8
     # smaller datasets with larger learning rates
-    lrs = {"pubmed-tr": 1e-6,
-           "clinspen-tr": 5e-7,
-           "khresmoi-tr": 1.5e-6,
-           "medline": 5e-7,
-           "orphanet-definitions-tr": 1e-6,
-           "orphanet-terms": 5e-7,
-           "preferred-en2es": 1e-7,
-           "snomed": 5e-7}
+
+    lrs = {"khresmoi-tr": 1e-5,
+           "orphanet-terms": 5e-6,
+           "clinspen-tr": 3e-6,
+           "medline": 2e-6,
+           "preferred-en2es": 1e-6,
+           "snomed": 9e-7,
+           "pubmed-tr": 7e-7,
+           "orphanet-definitions-tr": 6e-7}
+
     main(token, train_directory, epochs_per_corpus, lrs, batch_size, batch_size * 2)
