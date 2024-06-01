@@ -10,9 +10,10 @@ def main(hf_token: str,
          epochs_per_corpus: int,
          lrs: dict[str, float],
          train_batch_size: int,
-         eval_batch_size: int):
+         eval_batch_size: int,
+         device: str):
     model_name, repo = login_and_get_repo(hf_token)
-    trainer_fine_tuning = FineTuningTrainer("Helsinki-NLP/opus-mt-en-es")
+    trainer_fine_tuning = FineTuningTrainer("Helsinki-NLP/opus-mt-en-es", device)
 
     # ordered by target vocabulary size from smallest to largest
     ordered_corpora = ["khresmoi-tr", "orphanet-terms", "clinspen-tr", "medline", "preferred-en2es", "snomed",
@@ -50,4 +51,6 @@ if __name__ == "__main__":
            "pubmed-tr": 7e-7,
            "orphanet-definitions-tr": 6e-7}
 
-    main(token, train_directory, epochs_per_corpus, lrs, batch_size, batch_size * 2)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"Device: {device}")
+    main(token, train_directory, epochs_per_corpus, lrs, batch_size, batch_size * 2, device)
