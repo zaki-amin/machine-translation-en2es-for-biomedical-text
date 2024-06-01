@@ -26,6 +26,7 @@ def main(hf_token: str,
     for filename in ordered_corpora:
         full_filename = train_filepath + filename + ".jsonl"
         corpus = load_corpus(full_filename, 0.1, 42)
+        print(f"Training on {filename}")
         trainer_fine_tuning.finetune_with_trainer(corpus,
                                                   model_name,
                                                   lrs[filename],
@@ -43,13 +44,13 @@ if __name__ == "__main__":
     # smaller datasets with larger learning rates
 
     lrs = {"khresmoi-tr": 1e-5,
-           "orphanet-terms": 5e-6,
-           "clinspen-tr": 3e-6,
-           "medline": 2e-6,
-           "preferred-en2es": 1e-6,
-           "snomed": 9e-7,
-           "pubmed-tr": 7e-7,
-           "orphanet-definitions-tr": 6e-7}
+           "orphanet-definitions-tr": 5e-6,
+           "pubmed-tr": 1e-6,
+           "orphanet-terms": 5e-7,
+           "medline": 3e-7,
+           "clinspen-tr": 3e-7,
+           "snomed": 1e-7,
+           "preferred-en2es": 5e-8}
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Device: {device}")
