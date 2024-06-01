@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 from datasets import DatasetDict
-from transformers import Seq2SeqTrainingArguments, Seq2SeqTrainer, AdamW
+from transformers import Seq2SeqTrainingArguments, Seq2SeqTrainer, AdamW, get_scheduler
 
 from domain_adaptation.corpus import load_all_corpora
 from domain_adaptation.finetuning import FineTuning, login_and_get_repo
@@ -37,6 +37,12 @@ class FineTuningTrainer(FineTuning):
             push_to_hub=True,
             gradient_accumulation_steps=4,
         )
+        optimizer = AdamW(self.model.parameters(), lr=lr)
+        scheduler = get_scheduler(
+            "reduce_lr_on_plateau",
+            optimizer=optimizer,
+            num_warmup_steps=1,
+        )
         trainer = Seq2SeqTrainer(
             self.model.to(self.device),
             args,
@@ -45,7 +51,7 @@ class FineTuningTrainer(FineTuning):
             data_collator=self.data_collator,
             tokenizer=self.tokenizer,
             compute_metrics=self.compute_metrics,
-            optimizers=(AdamW(self.model.parameters(), lr=lr), None)
+            optimizers=(optimizer, scheduler)
         )
 
         trainer.train()
@@ -90,11 +96,11 @@ def main(hf_token: str,
 
 if __name__ == "__main__":
     # train_directory = "smalldata/"
-    train_directory = "/home/zakiamin/PycharmProjects/hpo_translation/corpus/train/"
+    train_directory = "/home/zakiamin/PycharmProjects/hpo_translation/corpus/small/"
     token = "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"
     seed = 17
     torch.manual_seed(seed)
-    epochs, lr, batch_size = 25, 1.5e-6, 8
+    epochs, lr, batch_size = 25, 1.5e-5, 8
     # Check if GPU is available
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Device: {device}")
