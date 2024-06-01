@@ -44,13 +44,13 @@ if __name__ == "__main__":
     # smaller datasets with larger learning rates
 
     lrs = {"khresmoi-tr": 1e-5,
-           "orphanet-definitions-tr": 5e-6,
-           "pubmed-tr": 1e-6,
+           "orphanet-definitions-tr": 8e-6,
+           "pubmed-tr": 2e-7,
            "orphanet-terms": 5e-7,
-           "medline": 3e-7,
-           "clinspen-tr": 3e-7,
-           "snomed": 1e-7,
-           "preferred-en2es": 5e-8}
+           "medline": 7e-7,
+           "clinspen-tr": 6e-7,
+           "snomed": 2e-7,
+           "preferred-en2es": 1e-7}
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Device: {device}")

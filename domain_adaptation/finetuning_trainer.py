@@ -54,6 +54,8 @@ class FineTuningTrainer(FineTuning):
             optimizers=(optimizer, scheduler)
         )
 
+        initial_results = trainer.evaluate(max_length=self.generation_config.max_length)
+        print(f"Initial eval_bleu: {initial_results['eval_bleu']}")
         trainer.train()
         final_results = trainer.evaluate(max_length=self.generation_config.max_length)
         print(f"Final eval_bleu: {final_results['eval_bleu']}")
