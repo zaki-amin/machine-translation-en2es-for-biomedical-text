@@ -27,7 +27,7 @@ class FineTuningTrainer(FineTuning):
             learning_rate=lr,
             per_device_train_batch_size=train_batch_size,
             per_device_eval_batch_size=eval_batch_size,
-            lr_scheduler_type="reduce_lr_on_plateau",
+            lr_scheduler_type="cosine",
             metric_for_best_model="eval_loss",
             weight_decay=0.01,
             save_total_limit=3,
