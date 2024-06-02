@@ -39,7 +39,7 @@ class FineTuningTrainer(FineTuning):
         )
         optimizer = AdamW(self.model.parameters(), lr=lr)
         scheduler = get_scheduler(
-            "reduce_lr_on_plateau",
+            "cosine",
             optimizer=optimizer,
             num_warmup_steps=1,
         )
@@ -97,12 +97,11 @@ def main(hf_token: str,
 
 
 if __name__ == "__main__":
-    # train_directory = "smalldata/"
-    train_directory = "/home/zakiamin/PycharmProjects/hpo_translation/corpus/small/"
+    train_directory = "/home/zakiamin/PycharmProjects/hpo_translation/corpus/train/"
     token = "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"
     seed = 17
     torch.manual_seed(seed)
-    epochs, lr, batch_size = 25, 1.5e-5, 8
+    epochs, lr, batch_size = 25, 1e-5, 8
     # Check if GPU is available
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Device: {device}")
