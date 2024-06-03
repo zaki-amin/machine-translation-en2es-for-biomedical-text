@@ -1,9 +1,0 @@
-model,filename,sacrebleu,wer,semsim
-nllb-600M,orphanet-definitions-tr.csv,35.5,44.8,92.5
-nllb-600M,clinspen-tr.csv,35.1,41.3,91.0
-nllb-600M,orphanet-terms.csv,33.6,49.8,93.2
-nllb-600M,pubmed-tr.csv,43.5,47.2,92.2
-nllb-600M,medline.csv,51.8,60.3,93.2
-nllb-600M,khresmoi-tr.csv,45.1,58.3,95.1
-nllb-600M,snomed.csv,18.8,-7.9,79.7
-nllb-600M,preferred-en2es.csv,12.4,0.8,81.3

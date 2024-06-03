@@ -1,6 +1,0 @@
-model,filename,sacrebleu,wer,semsim
-nllb-3B,clinspen-te.csv,34.9,37.6,90.0
-nllb-3B,hpo.csv,44.5,49.2,90.5
-nllb-3B,orphanet-definitions-te.csv,45.8,53.4,93.7
-nllb-3B,pubmed-te.csv,49.0,55.3,93.9
-nllb-3B,khresmoi-te.csv,49.3,60.9,96.0
