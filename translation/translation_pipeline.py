@@ -5,7 +5,7 @@ import pandas as pd
 
 from processing.abbreviations import Abbreviations
 from processing.preferred_synonyms import PreferredSynonyms
-from hpo.official.string_similarity import SimilarityMetric
+from evaluations.sentence_similarity import SimilarityMetric
 from translation.src.models import MarianMTConfig, NMTModelConfig
 from translation.src.translate import translate
 

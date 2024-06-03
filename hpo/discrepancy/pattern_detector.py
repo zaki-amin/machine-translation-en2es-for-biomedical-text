@@ -1,7 +1,7 @@
 import pandas as pd
 
 from hpo.discrepancy.word_similarity import word_differences, most_similar_word
-from hpo.official.string_similarity import SimilarityMetric
+from evaluations.sentence_similarity import SimilarityMetric
 from hpo.utility.text_functions import trim_string
 
 

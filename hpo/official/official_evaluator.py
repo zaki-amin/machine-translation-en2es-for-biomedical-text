@@ -1,5 +1,5 @@
 from hpo.official.expected_translations import read_official_translations
-from hpo.official.string_similarity import SimilarityMetric
+from evaluations.sentence_similarity import SimilarityMetric
 from hpo.translation.translation_model import model_results
 import pandas as pd
 
