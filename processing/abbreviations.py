@@ -22,9 +22,6 @@ class Abbreviations:
                 abbreviation = json.loads(line)
                 acronym, term, category = abbreviation['acronym'], abbreviation['term'], abbreviation[
                     'category']
-                if acronym == term:
-                    # Do not add acronyms which are mapped to themselves
-                    continue
                 match category:
                     case 'AbrevEs' | 'Simbolo' | 'Formula':
                         if acronym in spanish_abbrs:
