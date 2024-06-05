@@ -39,7 +39,7 @@ class SimilarityMetric(Enum):
                 return round(results["score"], 1)
 
             case SimilarityMetric.TER:
-                return 1 - ter(reference, candidate)[0].item()
+                return ter(reference, candidate)[0].item()
 
             case SimilarityMetric.SEMANTIC_SIMILARITY:
                 query_embedding = similarity_model.encode(reference)

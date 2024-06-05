@@ -11,29 +11,20 @@ from translation.translate import translate_text
 
 def translate_no_evaluate(input_file: str,
                           output_file: str,
-                          abbreviations_filename: str,
-                          synonyms_filename: str,
-                          expansions: tuple[bool, bool],
+                          abbreviations: Abbreviations,
+                          synonyms: PreferredSynonyms | None,
                           checkpoint: str):
     """Translates English from a .txt file to Spanish.
     Each line should have an English sentence.
     Applies pre-processing, the model and post-processing.
     Writes the output CSV to a file with the following columns:
     - 'en': the original English sentence
-    - 'es': the model's translation
-
-    :param input_file: the input file to translate, a .txt file with each sentence on a new line
-    :param output_file: the output file to write results to
-    :param abbreviations_filename: the filename of the abbreviations dictionary
-    :param synonyms_filename: the filename of the synonyms dictionary
-    :param expansions: flags for pre- and post- abbreviation expansion
-    :param checkpoint: the name of the model checkpoint to use."""
+    - 'es': the model's translation"""
     with open(input_file, 'r') as file:
         english_inputs = [line.strip() for line in file.readlines()]
     spanish_outputs = translate_english_inputs(english_inputs,
-                                               abbreviations_filename,
-                                               synonyms_filename,
-                                               expansions,
+                                               abbreviations,
+                                               synonyms,
                                                checkpoint)
     data = {'english': english_inputs, 'translation': spanish_outputs}
     df = pd.DataFrame(data)
@@ -42,9 +33,8 @@ def translate_no_evaluate(input_file: str,
 
 def translate_and_evaluate(input_file: str,
                            output_file: str,
-                           abbreviations_filename: str,
-                           synonyms_filename: str,
-                           expansions: tuple[bool, bool],
+                           abbreviations: Abbreviations,
+                           synonyms: PreferredSynonyms | None,
                            checkpoint: str):
     """Translates English and evaluates against reference translations from a .JSONL file.
     Each line should have an "en" and "es" key.
@@ -56,14 +46,7 @@ def translate_and_evaluate(input_file: str,
     - 'translation': the translation from the model
     - 'sacrebleu': the SacreBLEU score of the translation
     - 'ter': the translation error rate of the translation
-    - 'semsim': the semantic similarity score of the translation
-
-    :param input_file: the input file to translate, a .txt file with each sentence on a new line
-    :param output_file: the output file to write results to
-    :param abbreviations_filename: the filename of the abbreviations dictionary
-    :param synonyms_filename: the filename of the synonyms dictionary
-    :param expansions: flags for pre- and post- abbreviation expansion
-    :param checkpoint: the name of the model checkpoint to use"""
+    - 'semsim': the semantic similarity score of the translation"""
     english_texts, spanish_references = [], []
     with open(input_file, 'r') as file:
         for line in file:
@@ -72,9 +55,8 @@ def translate_and_evaluate(input_file: str,
             spanish_references.append(entry['es'])
 
     spanish_outputs = translate_english_inputs(english_texts,
-                                               abbreviations_filename,
-                                               synonyms_filename,
-                                               expansions,
+                                               abbreviations,
+                                               synonyms,
                                                checkpoint)
     data = {'english': english_texts, 'reference': spanish_references, 'translation': spanish_outputs}
     df = pd.DataFrame(data)
@@ -83,20 +65,19 @@ def translate_and_evaluate(input_file: str,
 
 
 def translate_english_inputs(english_inputs: list[str],
-                             abbreviations_filename: str,
-                             synonyms_filename: str,
-                             expansions: tuple[bool, bool],
+                             abbreviations: Abbreviations,
+                             synonyms: PreferredSynonyms | None,
                              checkpoint: str):
     """Translates English inputs to Spanish outputs. Applies pre-processing, the model and post-processing."""
     # Preprocessing
-    abbreviations = Abbreviations(abbreviations_filename, expansions[0], expansions[1])
     english_inputs = abbreviations.preprocess(english_inputs)
 
     # Translation with model
     spanish_outputs = translate_text(english_inputs, checkpoint)
 
     # Postprocessing
-    preferred_synonyms = PreferredSynonyms(synonyms_filename)
+    if synonyms:
+        spanish_outputs = synonyms.postprocess(spanish_outputs)
     spanish_outputs = abbreviations.postprocess(spanish_outputs)
     return spanish_outputs
 
@@ -110,11 +91,11 @@ def evaluate_translations(df: pd.DataFrame) -> pd.DataFrame:
 
     def sacrebleu(row):
         score = SimilarityMetric.SACREBLEU.evaluate(row['reference'], row['translation'])
-        return round(score * 100, round_digits)
+        return round(score, round_digits)
 
     def ter(row):
         score = SimilarityMetric.TER.evaluate(row['reference'], row['translation'])
-        return round(score * 100, round_digits)
+        return round(score, round_digits)
 
     def semsim(row):
         score = SimilarityMetric.SEMANTIC_SIMILARITY.evaluate(row['reference'], row['translation'])
@@ -130,17 +111,14 @@ def evaluate_translations(df: pd.DataFrame) -> pd.DataFrame:
 def main(input_filename: str,
          output_filename: str,
          evaluate: bool,
-         expansion: tuple[bool, bool]):
+         abbreviations: Abbreviations,
+         synonyms: PreferredSynonyms | None):
     """Main function to translate (and evaluate) English to Spanish."""
-    abbreviations_filename = "../../processing/dictionaries/processed/abbreviations.jsonl"
-    synonyms_filename = "../../processing/dictionaries/processed/preferred_synonyms_es.jsonl"
     checkpoint = "za17/helsinki-biomedical-finetuned"
     if evaluate:
-        translate_and_evaluate(input_filename, output_filename, abbreviations_filename,
-                               synonyms_filename, expansion, checkpoint)
+        translate_and_evaluate(input_filename, output_filename, abbreviations, synonyms, checkpoint)
     else:
-        translate_no_evaluate(input_filename, output_filename, abbreviations_filename,
-                              synonyms_filename, expansion, checkpoint)
+        translate_no_evaluate(input_filename, output_filename, abbreviations, synonyms, checkpoint)
 
 
 if __name__ == "__main__":
@@ -151,7 +129,13 @@ if __name__ == "__main__":
                         help="Evaluate translations against reference translations")
     parser.add_argument("--preexpansion", action="store_true", help="Pre-expand abbreviations in Spanish")
     parser.add_argument("--postexpansion", action="store_true", help="Post-expand abbreviations in Spanish")
+    parser.add_argument("--synonym", action="store_true", help="Replace secondary synonyms with primary synonyms")
+
     args = parser.parse_args()
     print("CLI arguments:", args)
-    expansion_flags = (args.preexpansion, args.postexpansion)
-    main(args.input_file, args.output_file, args.evaluate, expansion_flags)
+
+    abbreviations = Abbreviations("../../processing/dictionaries/processed/abbreviations.jsonl",
+                                  args.preexpansion, args.postexpansion)
+    synonyms = None if not args.synonym else PreferredSynonyms("../../processing/dictionaries/processed"
+                                                               "/preferred_synonyms_es.jsonl")
+    main(args.input_file, args.output_file, args.evaluate, abbreviations, synonyms)

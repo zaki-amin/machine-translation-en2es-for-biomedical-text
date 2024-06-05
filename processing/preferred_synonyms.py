@@ -25,7 +25,13 @@ class PreferredSynonyms:
                     synonym_dict[original].append(primary)
         return synonym_dict
 
-    def postprocess_translation(self, phrase: str) -> str:
+    def postprocess(self, spanish: list[str]) -> list[str]:
+        """Post-processes the Spanish translations, replacing terms with their preferred synonyms.
+        :param spanish: the list of Spanish translations
+        :return: the post-processed Spanish translations"""
+        return [self._postprocess_translation(phrase) for phrase in spanish]
+
+    def _postprocess_translation(self, phrase: str) -> str:
         def is_phrase_contained(candidate):
             # Only match standalone words
             pattern = r'\b{}\b'.format(re.escape(candidate))

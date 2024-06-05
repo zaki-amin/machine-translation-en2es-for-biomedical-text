@@ -22,12 +22,12 @@ class TestPreferredSynonyms(unittest.TestCase):
 
     def test_postprocess_translation1(self):
         phrase = 'El paciente parece sufrir problemas con la válvula del corazón'
-        self.assertEqual(self.preferred_synonyms.postprocess_translation(phrase),
+        self.assertEqual(self.preferred_synonyms._postprocess_translation(phrase),
                          'El paciente parece sufrir problemas con la válvula cardíaca',
                          "synonym replacement should change 'válvula del corazón' to 'válvula cardíaca'")
 
     def test_postprocess_translation2(self):
         phrase = 'La médica recomienda el uso de un método contraceptivo tras el parto durante tres meses'
-        self.assertEqual(self.preferred_synonyms.postprocess_translation(phrase),
+        self.assertEqual(self.preferred_synonyms._postprocess_translation(phrase),
                          'La médica recomienda el uso de un método anticonceptivo tras el parto durante tres meses',
                          "synonym replacement should change 'método contraceptivo' to 'método anticonceptivo'")

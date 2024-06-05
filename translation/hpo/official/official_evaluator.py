@@ -17,8 +17,9 @@ def translate_and_evaluate(hpo_id: str, checkpoint: str):
     print("---Comparing translations---")
     merged_df = compare_translations(model_df, official_df)
     display_accuracy(merged_df)
-    # Drop the 'kind' column
+
     merged_df = merged_df.drop(columns=['kind'])
+    merged_df = merged_df.rename(columns={'SEMANTIC_SIMILARITY': 'SEMSIM'})
     merged_df.to_csv(f"results/{hpo_id}.csv", index=False)
 
 
@@ -39,7 +40,6 @@ def compare_translations(model_df: pd.DataFrame, official_df: pd.DataFrame) -> p
             lambda row: metric.evaluate(row['etiqueta oficial'], row['traducción modelo']),
             axis=1)
 
-    merged_df = merged_df.rename(columns={'SEMANTIC_SIMILARITY': 'SEMSIM'})
     return merged_df
 
 

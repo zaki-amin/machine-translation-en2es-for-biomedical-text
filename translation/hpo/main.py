@@ -4,8 +4,6 @@ from translation.hpo.official.official_evaluator import translate_and_evaluate
 
 
 def main():
-    """Command line interface for evaluating model translations against official translations
-    Usage: python main.py <HPO ID> [--labels]"""
     parser = argparse.ArgumentParser(
         description="Enter a HPO ID and evaluate model translation on all descendants"
     )
