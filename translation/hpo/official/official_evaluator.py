@@ -5,30 +5,32 @@ from translation.hpo.official.expected_translations import read_official_transla
 from translation.translate import translate_hpo
 
 
-def evaluate_translation(hpo_id: str, checkpoint: str, labels: bool):
-    """Compares model translations against official translations for a given HPO ID. Saves results to CSV in directory files/results.
+def translate_and_evaluate(hpo_id: str, checkpoint: str):
+    """Generates model translations and evaluates against official translations for a given HPO ID.
+    Saves results to CSV in directory results/.
     :param hpo_id: HPO ID in the form HP:XXXXXXX
-    :param checkpoint: Model checkpoint
-    :param labels: True if evaluating only labels, False if evaluating everything e.g. synonyms"""
-    model_df = gather_model_translations(hpo_id, checkpoint, labels)
+    :param checkpoint: Model checkpoint"""
+    model_df = generate_model_translations(hpo_id, checkpoint)
 
     official_df = read_official_translations("official/hp-es.babelon.tsv", '\t')
 
     print("---Comparing translations---")
-    merged_df = combine_translations(model_df, official_df)
+    merged_df = compare_translations(model_df, official_df)
     display_accuracy(merged_df)
+    # Drop the 'kind' column
+    merged_df = merged_df.drop(columns=['kind'])
     merged_df.to_csv(f"results/{hpo_id}.csv", index=False)
 
 
-def gather_model_translations(hpo_id: str, checkpoint: str, labels: bool) -> pd.DataFrame:
+def generate_model_translations(hpo_id: str, checkpoint: str) -> pd.DataFrame:
     print("---Generating model translations---")
-    translate_hpo(hpo_id, checkpoint, only_labels=labels)
+    translate_hpo(hpo_id, checkpoint)
     translation_df = pd.read_excel(f"results/{hpo_id}.xlsx", sheet_name='Translations')
     translation_df = translation_df.rename(columns={'id': 'hpo_id', 'spanish': 'traducción modelo'})
     return clean_column(translation_df, 'traducción modelo')
 
 
-def combine_translations(model_df: pd.DataFrame, official_df: pd.DataFrame) -> pd.DataFrame:
+def compare_translations(model_df: pd.DataFrame, official_df: pd.DataFrame) -> pd.DataFrame:
     """Combines model translations with official translations and evaluates all metrics
     :return: Combined dataframe with a new column for each similarity metric"""
     merged_df = pd.merge(model_df, official_df, on='hpo_id', how='inner')
@@ -37,6 +39,7 @@ def combine_translations(model_df: pd.DataFrame, official_df: pd.DataFrame) -> p
             lambda row: metric.evaluate(row['etiqueta oficial'], row['traducción modelo']),
             axis=1)
 
+    merged_df = merged_df.rename(columns={'SEMANTIC_SIMILARITY': 'SEMSIM'})
     return merged_df
 
 

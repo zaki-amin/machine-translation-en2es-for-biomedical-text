@@ -63,8 +63,7 @@ def translate_and_evaluate(input_file: str,
     :param abbreviations_filename: the filename of the abbreviations dictionary
     :param synonyms_filename: the filename of the synonyms dictionary
     :param expansions: flags for pre- and post- abbreviation expansion
-    :param checkpoint: the name of the model checkpoint to use. If not given, defaults to clinical MarianMT
-    :param config: the configuration of the model to use. If not given, defaults to MarianMTConfig"""
+    :param checkpoint: the name of the model checkpoint to use"""
     english_texts, spanish_references = [], []
     with open(input_file, 'r') as file:
         for line in file:

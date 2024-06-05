@@ -79,7 +79,7 @@ class Abbreviations:
     def expand_all_abbreviations(self, phrase: str, lang: str) -> str:
         """Expands all abbreviations in a phrase in the corresponding langauge
         :param phrase: the phrase with abbreviations
-        :param lang: the language of the phrase
+        :param lang: text language
         :returns: the phrase with all abbreviations expanded"""
         dictionary = self.abbreviation_dictionary_en if lang == "en" else self.abbreviation_dictionary_es
         for word in phrase.split(" "):
@@ -97,7 +97,7 @@ class Abbreviations:
         return self.expand_all_abbreviations(phrase, "en")
 
     def expand_all_abbreviations_spanish(self, phrase: str) -> str:
-        """Expands all abbreviations in a Spanish phrase..
+        """Expands all abbreviations in a Spanish phrase.
         :param phrase: the phrase with abbreviations
         :returns: the phrase with all abbreviations expanded"""
         return self.expand_all_abbreviations(phrase, "es")

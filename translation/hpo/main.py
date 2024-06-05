@@ -1,6 +1,6 @@
 import argparse
 
-from translation.hpo.official.official_evaluator import evaluate_translation
+from translation.hpo.official.official_evaluator import translate_and_evaluate
 
 
 def main():
@@ -11,10 +11,8 @@ def main():
     )
     parser.add_argument("hpo_id", type=str, help="HPO ID in the form HP:XXXXXXX")
     parser.add_argument("checkpoint", type=str, help="Model checkpoint")
-    # If --all is True, translate synonyms, definitions etc. as well as labels
-    parser.add_argument('--all', action='store_true', default=False)
     args = parser.parse_args()
-    evaluate_translation(args.hpo_id, args.checkpoint, not args.all)
+    translate_and_evaluate(args.hpo_id, args.checkpoint)
 
 
 if __name__ == "__main__":

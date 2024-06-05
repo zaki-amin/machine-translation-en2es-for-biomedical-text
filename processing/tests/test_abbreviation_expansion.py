@@ -43,7 +43,8 @@ class TestAbbreviations(unittest.TestCase):
     def test_most_appropriate_expansion_english_1(self):
         phrase = "The test revealed there was AMP in his urine, a sign of prostate cancer"
         self.assertEqual(self.abbr.most_appropriate_expansion("AMP", phrase, 'en'), "adenosine monophosphate",
-                         "AMP should expand to adenosine monophosphate in this context and not Academia de Medicina del Paraguay")
+                         "AMP should expand to adenosine monophosphate in this context and not Academia de Medicina "
+                         "del Paraguay")
 
     def test_whole_phrase_expansion_english(self):
         phrase = "The elderly man scored highly on the GDS, indicating depression"

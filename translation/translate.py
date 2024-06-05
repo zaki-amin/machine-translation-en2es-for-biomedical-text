@@ -48,25 +48,19 @@ def translate_text(
     return results
 
 
-def translate_hpo(
-        hpo_id: str,
-        model_checkpoint: str,
-        batch_size: int = 32,
-        only_labels: bool = True
-):
+def translate_hpo(hpo_id: str, model_checkpoint: str, batch_size: int = 32):
     """
-    Translates an HPO term and all its descendants by ID and saves the
-    translations as an XLSX file.
+    Translates an HPO term and all its descendants by ID and saves the translations as an XLSX file in results/
+    directory.
     :param hpo_id: HPO ID in the form HP:XXXXXXX.
-    :param out_dir: Output directory where the result will be saved. Defaults to cwd
-    :param model_checkpoint: Path to the model checkpoint.
-    :param batch_size: Batch size to input into the model to speed up the inference. Defaults to 32.
-    :param only_labels: If True, only translates the labels and not definitions, synonyms etc. of the HPO terms. Defaults to True.
+    :param model_checkpoint: Checkpoint name.
+    :param batch_size: Batch size for model to speed up inference.
+
     """
     device, model, tokenizer = load_model(model_checkpoint)
 
     # HPO dataset
-    dataset = HPOCorpus(hpo_id, just_labels=only_labels)
+    dataset = HPOCorpus(hpo_id, just_labels=True)
     data_loader = DataLoader(dataset, batch_size=batch_size, collate_fn=collate_fn)
     with torch.no_grad():
         for idxs, inputs in tqdm(data_loader, desc="Translating HPO"):
