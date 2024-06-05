@@ -1,9 +1,7 @@
-import os
-
-from translation.hpo.official.expected_translations import read_official_translations, clean_column
-from evaluations.sentence_similarity import SimilarityMetric
 import pandas as pd
 
+from evaluations.sentence_similarity import SimilarityMetric
+from translation.hpo.official.expected_translations import read_official_translations, clean_column
 from translation.translate import translate_hpo
 
 
@@ -53,7 +51,7 @@ def display_accuracy(df: pd.DataFrame):
         model_performance = score / num_translations
         if metric == SimilarityMetric.SACREBLEU:
             # Uses a 0-100 scale instead of 0-1
-            score = score / 100
             model_performance = model_performance / 100
-        print(f"Score: {score} / {num_translations}")
+        if metric == SimilarityMetric.TER:
+            model_performance = model_performance / 10 * -1
         print("Model performance: {:.2%}".format(model_performance))
