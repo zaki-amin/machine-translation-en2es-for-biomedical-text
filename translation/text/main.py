@@ -129,13 +129,13 @@ if __name__ == "__main__":
                         help="Evaluate translations against reference translations")
     parser.add_argument("--preexpansion", action="store_true", help="Pre-expand abbreviations in Spanish")
     parser.add_argument("--postexpansion", action="store_true", help="Post-expand abbreviations in Spanish")
-    parser.add_argument("--synonym", action="store_true", help="Replace secondary synonyms with primary synonyms")
+    parser.add_argument("--synonyms", action="store_true", help="Replace secondary synonyms with primary synonyms")
 
     args = parser.parse_args()
     print("CLI arguments:", args)
 
     abbreviations = Abbreviations("../../processing/dictionaries/processed/abbreviations.jsonl",
                                   args.preexpansion, args.postexpansion)
-    synonyms = None if not args.synonym else PreferredSynonyms("../../processing/dictionaries/processed"
+    synonyms = None if not args.synonyms else PreferredSynonyms("../../processing/dictionaries/processed"
                                                                "/preferred_synonyms_es.jsonl")
     main(args.input_file, args.output_file, args.evaluate, abbreviations, synonyms)
