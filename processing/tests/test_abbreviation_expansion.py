@@ -67,6 +67,13 @@ class TestAbbreviations(unittest.TestCase):
         self.assertFalse("(lantano)" in replacement_phrase,
                          "La should not expand to lantano when there is no context for it")
 
+    def test_preprocessing_expands_abbreviations_attached_to_punctuation(self):
+        phrase = "The clinic screens patients with the GDS: this is effective at finding loneliness in older adults."
+        replacement_phrase = self.abbr.expand_all_abbreviations_english(phrase)
+        self.assertEqual(replacement_phrase,
+                         "The clinic screens patients with the geriatric depression scale: this is effective at "
+                         "finding loneliness in older adults.")
+
     def test_preprocessing_expands_abbreviations_in_all_sentences(self):
         english_inputs = ["The patient's tRNA does not function properly, indicating ribosomal damage.",
                           "Her symptoms and travel history suggest she has contracted CHIKV."]

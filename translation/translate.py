@@ -1,9 +1,8 @@
-import os
 from pathlib import Path
 
 import torch
-from tqdm import tqdm
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 from transformers import MarianMTModel, MarianTokenizer
 
 from translation.hpo.data import HPOCorpus, collate_fn
@@ -12,9 +11,7 @@ ROOT_DIR = Path(__file__).parent
 
 
 def load_model(model_checkpoint):
-    if model_checkpoint != "za17/helsinki-biomedical-finetuned":
-        model_checkpoint = "Helsinki-NLP/opus-mt-en-es"
-    # Send to GPU if available
+    """Model should have a MarianMT architecture"""
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model = MarianMTModel.from_pretrained(model_checkpoint)
     model.to(device)

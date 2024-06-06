@@ -5,7 +5,7 @@ from processing.preferred_synonyms import PreferredSynonyms
 
 class TestPreferredSynonyms(unittest.TestCase):
     synonyms_filename = ("/Users/zaki/PycharmProjects/hpo_translation/processing/dictionaries/processed"
-                         "/preferred_synonyms_es.jsonl")
+                         "/preferred-synonyms-es.jsonl")
     preferred_synonyms = PreferredSynonyms(synonyms_filename)
 
     def test_synonym_dictionary_built_correctly(self):
@@ -20,14 +20,36 @@ class TestPreferredSynonyms(unittest.TestCase):
         self.assertNotIn("ácido-básica", self.preferred_synonyms.synonyms_dictionary[original],
                          "preferred synonym dictionary should not include feminine 'ácido-básica'")
 
-    def test_postprocess_translation1(self):
-        phrase = 'El paciente parece sufrir problemas con la válvula del corazón'
-        self.assertEqual(self.preferred_synonyms._postprocess_translation(phrase),
-                         'El paciente parece sufrir problemas con la válvula cardíaca',
-                         "synonym replacement should change 'válvula del corazón' to 'válvula cardíaca'")
-
-    def test_postprocess_translation2(self):
+    def test_simple_replacement(self):
         phrase = 'La médica recomienda el uso de un método contraceptivo tras el parto durante tres meses'
         self.assertEqual(self.preferred_synonyms._postprocess_translation(phrase),
                          'La médica recomienda el uso de un método anticonceptivo tras el parto durante tres meses',
                          "synonym replacement should change 'método contraceptivo' to 'método anticonceptivo'")
+
+    def test_can_chain_synonym_replacement(self):
+        # Should replace 'válvula del corazón' to 'válvula cardíaca' to 'prótesis valvular'
+        phrase = 'El paciente parece sufrir problemas con la válvula del corazón'
+        self.assertEqual('El paciente parece sufrir problemas con la prótesis valvular',
+                         self.preferred_synonyms._postprocess_translation(phrase),
+                         "double synonym replacement expected")
+
+    def test_postprocess_multiple_translations(self):
+        original = ["No se recomienda entrar en un hospital mental en casos leves de la depresión.",
+                    "La fibra amarilla juega un papel crucial en la estructura de las arterias."]
+        postprocessed = self.preferred_synonyms.postprocess(original)
+
+        expected = ["No se recomienda entrar en un hospital psiquiátrico en casos leves de la depresión.",
+                    "La fibra elástica juega un papel crucial en la estructura de las arterias."]
+        self.assertEqual(postprocessed[0], expected[0])
+        self.assertEqual(postprocessed[1], expected[1])
+
+    def test_postprocessing_works_with_punctuation_attached(self):
+        phrase = "La vena poscava: el principal vaso sanguíneo que transporta la sangre desoxigenada"
+        self.assertEqual(self.preferred_synonyms._postprocess_translation(phrase),
+                         "La vena cava inferior: el principal vaso sanguíneo que transporta la sangre desoxigenada",
+                         "synonym replacement should change 'vena poscava' to 'vena cava posterior'")
+
+    def test_chooses_longest_match(self):
+        phrase = "Se aprobó el virus de la hepatitis infecciosa en los años 90"
+        self.assertEqual(self.preferred_synonyms._postprocess_translation(phrase),
+                         "Se aprobó el virus de la hepatitis A en los años 90")

@@ -137,5 +137,5 @@ if __name__ == "__main__":
     abbreviations = Abbreviations("../../processing/dictionaries/processed/abbreviations.jsonl",
                                   args.preexpansion, args.postexpansion)
     synonyms = None if not args.synonyms else PreferredSynonyms("../../processing/dictionaries/processed"
-                                                               "/preferred_synonyms_es.jsonl")
+                                                                "/preferred-synonyms-es.jsonl")
     main(args.input_file, args.output_file, args.evaluate, abbreviations, synonyms)
