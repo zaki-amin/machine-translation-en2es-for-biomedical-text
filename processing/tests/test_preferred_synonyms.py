@@ -53,3 +53,11 @@ class TestPreferredSynonyms(unittest.TestCase):
         phrase = "Se aprobó el virus de la hepatitis infecciosa en los años 90"
         self.assertEqual(self.preferred_synonyms._postprocess_translation(phrase),
                          "Se aprobó el virus de la hepatitis A en los años 90")
+
+    def test_choose_longest_match2(self):
+        phrase = ("El tronco arterial pulmonar es una arteria que lleva sangre desoxigenada desde el corazón a los "
+                  "pulmones")
+        self.assertEqual(self.preferred_synonyms._postprocess_translation(phrase),
+                         "El tronco pulmonar es una arteria que lleva sangre desoxigenada desde el corazón a los "
+                         "pulmones",
+                         'Replace "tronco arterial pulmonar to tronco pulmonar" instead of "tronco arterial" to "tronco arterioso"')
