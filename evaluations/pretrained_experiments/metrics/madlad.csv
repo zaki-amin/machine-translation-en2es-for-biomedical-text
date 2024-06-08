@@ -1,4 +1,4 @@
-model,filename,sacrebleu,ter,semsim
+model,filename,sacrebleu,`ter`,semsim
 madlad,preferred-en2es.csv,16.1,31.8,84.7
 madlad,orphanet-definitions-tr.csv,50.6,60.0,93.9
 madlad,snomed.csv,31.5,32.9,82.1

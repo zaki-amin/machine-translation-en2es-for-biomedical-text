@@ -1,4 +1,4 @@
-model,filename,sacrebleu,ter,semsim
+model,filename,sacrebleu,`ter`,semsim
 helsinki-nlp,orphanet-definitions-te.csv,46.3,57.7,93.9
 helsinki-nlp,hpo.csv,47.8,60.9,92.2
 helsinki-nlp,pubmed-te.csv,48.4,58.2,94.0
@@ -14,3 +14,13 @@ nllb-3B,hpo.csv,44.5,52.0,90.5
 nllb-3B,khresmoi-te.csv,49.3,64.3,96.0
 nllb-3B,orphanet-definitions-te.csv,45.8,56.7,93.7
 nllb-3B,pubmed-te.csv,49.0,58.1,93.9
+finetuned-all,pubmed-te.csv,45.9,56.1,93.5
+finetuned-all,clinspen-te.csv,54.5,65.1,94.1
+finetuned-all,hpo.csv,48.7,64.5,92.6
+finetuned-all,orphanet-definitions-te.csv,61.4,69.4,96.0
+finetuned-all,khresmoi-te.csv,47.9,62.6,95.7
+finetuned-cl,pubmed-te.csv,48.2,57.9,94.0
+finetuned-cl,clinspen-te.csv,40.7,54.2,92.8
+finetuned-cl,hpo.csv,49.8,62.8,92.6
+finetuned-cl,orphanet-definitions-te.csv,57.7,67.3,95.4
+finetuned-cl,khresmoi-te.csv,48.5,63.8,95.8
