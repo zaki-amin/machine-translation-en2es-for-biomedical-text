@@ -1,6 +1,8 @@
 import json
 import string
 
+from tqdm import tqdm
+
 from evaluations.sentence_similarity import SimilarityMetric
 
 
@@ -95,6 +97,7 @@ class Abbreviations:
                 replacement = self.most_appropriate_expansion(word, phrase, lang)
                 words[i] = replacement + punctuation
         return " ".join(words)
+
     def expand_all_abbreviations_english(self, phrase: str) -> str:
         """Expands all abbreviations in an English phrase.
         :param phrase: the phrase with abbreviations
@@ -112,11 +115,11 @@ class Abbreviations:
         Otherwise, return the English inputs as they are"""
         if not self.pre_exp:
             return english_inputs
-        return list(map(lambda line: self.expand_all_abbreviations_english(line), english_inputs))
+        return [self.expand_all_abbreviations_english(line) for line in tqdm(english_inputs)]
 
     def postprocess(self, spanish_outputs: list[str]) -> list[str]:
         """If flag post_exp enabled, expand all abbreviations in all the Spanish outputs provided.
         Otherwise, return the Spanish outputs as they are"""
         if not self.post_exp:
             return spanish_outputs
-        return list(map(lambda line: self.expand_all_abbreviations_spanish(line), spanish_outputs))
+        return [self.expand_all_abbreviations_spanish(line) for line in tqdm(spanish_outputs)]
