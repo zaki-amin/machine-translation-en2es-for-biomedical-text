@@ -23,13 +23,16 @@ def translate_no_evaluate(input_file: str,
     if ".txt" in input_file:
         english_inputs = read_text_file(input_file)
     else:
-        english_inputs, _ = read_jsonl_file(input_file)
+        is_jsonl = True
+        english_inputs, spanish_references = read_jsonl_file(input_file)
 
     spanish_outputs = translate_english_inputs(english_inputs,
                                                abbreviations,
                                                synonyms,
                                                checkpoint)
     data = {'english': english_inputs, 'translation': spanish_outputs}
+    if is_jsonl:
+        data['reference'] = spanish_references
     df = pd.DataFrame(data)
     df.to_csv(output_file, index=False, header=True)
 
