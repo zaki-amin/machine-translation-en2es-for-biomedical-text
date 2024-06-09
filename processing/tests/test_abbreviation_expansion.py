@@ -92,7 +92,7 @@ class TestAbbreviations(unittest.TestCase):
         preprocessed = abbr.preprocess(english_inputs)
         self.assertEqual(preprocessed, english_inputs, "Abbreviations should not be expanded when pre_exp is False")
 
-    def test_postprocessing_does_not_expand_abbreviations_when_glag_disabled(self):
+    def test_postprocessing_does_not_expand_abbreviations_when_flag_disabled(self):
         abbr = Abbreviations(self.abbreviation_filename, pre_exp=True, post_exp=False)
         spanish_outputs = [
             "El médico descubrió que el paciente tenía alta TA, aumentando el riesgo del ataque cardíaco"]

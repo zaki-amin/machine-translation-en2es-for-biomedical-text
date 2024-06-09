@@ -1,10 +1,11 @@
 import json
+import string
 
 from evaluations.sentence_similarity import SimilarityMetric
 
 
 class Abbreviations:
-    def __init__(self, abbr_file: str, pre_exp: bool = True, post_exp: bool = True):
+    def __init__(self, abbr_file: str, pre_exp: bool, post_exp: bool):
         self.abbreviation_filename = abbr_file
         self.pre_exp = pre_exp
         self.post_exp = post_exp
@@ -82,14 +83,18 @@ class Abbreviations:
         :param lang: text language
         :returns: the phrase with all abbreviations expanded"""
         dictionary = self.abbreviation_dictionary_en if lang == "en" else self.abbreviation_dictionary_es
-        for word in phrase.split(" "):
-            # Any punctuation attached must be removed before checking membership
-            word = word.strip(".,;:!?()[]{}")
+        words = phrase.split(" ")
+        for i in range(len(words)):
+            word = words[i]
+            # Store punctuation
+            punctuation = ''
+            while word and word[-1] in string.punctuation:
+                punctuation = word[-1] + punctuation
+                word = word[:-1]
             if word in dictionary:
                 replacement = self.most_appropriate_expansion(word, phrase, lang)
-                phrase = phrase.replace(word, replacement)
-        return phrase
-
+                words[i] = replacement + punctuation
+        return " ".join(words)
     def expand_all_abbreviations_english(self, phrase: str) -> str:
         """Expands all abbreviations in an English phrase.
         :param phrase: the phrase with abbreviations

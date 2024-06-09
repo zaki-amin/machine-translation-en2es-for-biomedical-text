@@ -144,7 +144,7 @@ if __name__ == "__main__":
     parser.add_argument("output_file", type=str, help="The output file to write results to")
     parser.add_argument("--evaluate", action="store_true",
                         help="Evaluate translations against reference translations")
-    parser.add_argument("--preexpansion", action="store_true", help="Pre-expand abbreviations in Spanish")
+    parser.add_argument("--preexpansion", action="store_true", help="Pre-expand abbreviations in English")
     parser.add_argument("--postexpansion", action="store_true", help="Post-expand abbreviations in Spanish")
     parser.add_argument("--synonyms", action="store_true", help="Replace secondary synonyms with primary synonyms")
 
