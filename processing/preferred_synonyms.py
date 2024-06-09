@@ -2,7 +2,7 @@ import json
 import re
 from collections import defaultdict
 
-from datasets import tqdm
+from tqdm import tqdm
 
 from evaluations.sentence_similarity import SimilarityMetric
 
