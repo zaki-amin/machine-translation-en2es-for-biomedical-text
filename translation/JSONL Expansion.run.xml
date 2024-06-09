@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="JSON Evaluate Expansion" type="PythonConfigurationType" factoryName="Python">
+  <configuration default="false" name="JSONL Expansion" type="PythonConfigurationType" factoryName="Python">
     <module name="hpo_translation" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
