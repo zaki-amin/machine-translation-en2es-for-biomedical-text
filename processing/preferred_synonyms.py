@@ -2,6 +2,8 @@ import json
 import re
 from collections import defaultdict
 
+from datasets import tqdm
+
 from evaluations.sentence_similarity import SimilarityMetric
 
 
@@ -28,7 +30,8 @@ class PreferredSynonyms:
         """Post-processes the Spanish translations, replacing terms with their preferred synonyms.
         :param spanish: the list of Spanish translations
         :return: the post-processed Spanish translations"""
-        return [self._postprocess_translation(phrase) for phrase in spanish]
+        print("Post-processing translations with synonym replacement...")
+        return [self._postprocess_translation(phrase) for phrase in tqdm(spanish)]
 
     def _postprocess_translation(self, phrase: str) -> str:
         def is_phrase_contained(candidate):
