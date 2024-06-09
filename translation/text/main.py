@@ -20,8 +20,11 @@ def translate_no_evaluate(input_file: str,
     Writes the output CSV to a file with the following columns:
     - 'en': the original English sentence
     - 'es': the model's translation"""
-    with open(input_file, 'r') as file:
-        english_inputs = [line.strip() for line in file.readlines()]
+    if ".txt" in input_file:
+        english_inputs = read_text_file(input_file)
+    else:
+        english_inputs, _ = read_jsonl_file(input_file)
+
     spanish_outputs = translate_english_inputs(english_inputs,
                                                abbreviations,
                                                synonyms,
@@ -29,6 +32,22 @@ def translate_no_evaluate(input_file: str,
     data = {'english': english_inputs, 'translation': spanish_outputs}
     df = pd.DataFrame(data)
     df.to_csv(output_file, index=False, header=True)
+
+
+def read_text_file(input_file: str):
+    with open(input_file, 'r') as file:
+        english_inputs = [line.strip() for line in file.readlines()]
+    return english_inputs
+
+
+def read_jsonl_file(input_file: str):
+    english_texts, spanish_references = [], []
+    with open(input_file, 'r') as file:
+        for line in file:
+            entry = json.loads(line)
+            english_texts.append(entry['en'])
+            spanish_references.append(entry['es'])
+    return english_texts, spanish_references
 
 
 def translate_and_evaluate(input_file: str,
@@ -47,12 +66,7 @@ def translate_and_evaluate(input_file: str,
     - 'sacrebleu': the SacreBLEU score of the translation
     - 'ter': the translation error rate of the translation
     - 'semsim': the semantic similarity score of the translation"""
-    english_texts, spanish_references = [], []
-    with open(input_file, 'r') as file:
-        for line in file:
-            entry = json.loads(line)
-            english_texts.append(entry['en'])
-            spanish_references.append(entry['es'])
+    english_texts, spanish_references = read_jsonl_file(input_file)
 
     spanish_outputs = translate_english_inputs(english_texts,
                                                abbreviations,
