@@ -21,27 +21,27 @@ def load_model(model_checkpoint):
     return device, model, tokenizer
 
 
-def translate_text(
-        inputs: str | list[str],
-        model_checkpoint: str = None
-):
+def translate_text(inputs: list[str], model_checkpoint: str, batch_size: int = 16):
     """
-    Translates a string or list of strings from English to Spanish.
-    :param inputs: A string or a list of strings to be translated.
+    Translates a list of strings from English to Spanish in batches.
+    :param inputs: A list of strings to be translated.
     :param model_checkpoint: Path to the model checkpoint.
+    :param batch_size: Batch size for model to speed up inference.
     """
     device, model, tokenizer = load_model(model_checkpoint)
 
-    # Ensure inputs is a list
-    if isinstance(inputs, str):
-        inputs = [inputs]
+    results = []
+    for i in tqdm(range(0, len(inputs), batch_size), desc="Translating"):
+        batch_inputs = inputs[i:i+batch_size]
+        english_inputs_tensor = tokenizer(batch_inputs, padding=True, truncation=True, return_tensors="pt").to(device)
 
-    english_inputs_tensor = tokenizer(inputs, padding=True, truncation=True, return_tensors="pt").to(device)
+        with torch.no_grad():
+            batch_results = model.generate(english_inputs_tensor["input_ids"], max_length=512, num_beams=4)
+            batch_results = tokenizer.batch_decode(batch_results, skip_special_tokens=True)
+            results.extend(batch_results)
 
-    with torch.no_grad():
-        results = model.generate(english_inputs_tensor["input_ids"], max_length=512, num_beams=4)
+        torch.cuda.empty_cache()  # Clear GPU cache after each batch
 
-    results = tokenizer.batch_decode(results, skip_special_tokens=True)
     return results
 
 

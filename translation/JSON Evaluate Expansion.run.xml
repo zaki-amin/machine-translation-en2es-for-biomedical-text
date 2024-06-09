@@ -14,7 +14,7 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="SCRIPT_NAME" value="$PROJECT_DIR$/translation/text/main.py" />
-    <option name="PARAMETERS" value="&quot;examples/input.jsonl&quot; &quot;results.csv&quot; --evaluate --preexpansion --postexpansion" />
+    <option name="PARAMETERS" value="&quot;$PROJECT_DIR$/corpus/test/clinspen-te.jsonl&quot; &quot;clinspen.csv&quot; --preexpansion --postexpansion" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="false" />
