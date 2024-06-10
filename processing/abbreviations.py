@@ -106,6 +106,7 @@ class Abbreviations:
         Otherwise, return the English inputs as they are"""
         if not self.pre_exp:
             return english_inputs
+        print("\nExpanding abbreviations in English inputs...")
         return [self.expand_all_abbreviations_english(line) for line in tqdm(english_inputs)]
 
     def postprocess(self, spanish_outputs: list[str]) -> list[str]:
@@ -113,4 +114,5 @@ class Abbreviations:
         Otherwise, return the Spanish outputs as they are"""
         if not self.post_exp:
             return spanish_outputs
+        print("\nExpanding abbreviations in Spanish outputs...")
         return [self.expand_all_abbreviations_spanish(line) for line in tqdm(spanish_outputs)]

@@ -93,7 +93,7 @@ def translate_english_inputs(english_inputs: list[str],
     spanish_outputs = translate_text(english_inputs, checkpoint)
 
     # Postprocessing
-    if synonyms:
+    if synonyms is not None:
         spanish_outputs = synonyms.postprocess(spanish_outputs)
     spanish_outputs = abbreviations.postprocess(spanish_outputs)
     return spanish_outputs
