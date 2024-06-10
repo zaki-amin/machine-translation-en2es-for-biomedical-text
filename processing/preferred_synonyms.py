@@ -30,7 +30,7 @@ class PreferredSynonyms:
         """Post-processes the Spanish translations, replacing terms with their preferred synonyms.
         :param spanish: the list of Spanish translations
         :return: the post-processed Spanish translations"""
-        print("Post-processing translations with synonym replacement...")
+        print("\nPost-processing translations with synonym replacement...")
         return [self._postprocess_translation(phrase) for phrase in tqdm(spanish)]
 
     def _postprocess_translation(self, phrase: str) -> str:
