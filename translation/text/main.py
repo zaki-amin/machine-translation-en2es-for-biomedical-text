@@ -94,6 +94,7 @@ def translate_english_inputs(english_inputs: list[str],
 
     # Postprocessing
     if synonyms is not None:
+        print("Postprocessing with synonyms...")
         spanish_outputs = synonyms.postprocess(spanish_outputs)
     spanish_outputs = abbreviations.postprocess(spanish_outputs)
     return spanish_outputs

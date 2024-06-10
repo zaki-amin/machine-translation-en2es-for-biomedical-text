@@ -31,10 +31,10 @@ def translate_text(inputs: list[str], model_checkpoint: str):
 
     results = []
     for english in tqdm(inputs):
-        input_ids = tokenizer.encode(english, return_tensors="pt")
+        input_ids = tokenizer.encode(english, return_tensors="pt").to(device)
         translated_tokens = model.generate(input_ids, num_beams=4, early_stopping=True)
         translated_text = tokenizer.decode(translated_tokens[0], skip_special_tokens=True)
-        return translated_text
+        results.append(translated_text)
 
     return results
 

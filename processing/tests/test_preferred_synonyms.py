@@ -21,9 +21,9 @@ class TestPreferredSynonyms(unittest.TestCase):
                          "preferred synonym dictionary should not include feminine 'ácido-básica'")
 
     def test_simple_replacement(self):
-        phrase = 'La médica recomienda el uso de un método contraceptivo tras el parto durante tres meses'
+        phrase = 'La médica recomienda el uso de un método contraceptivo translations el parto durante tres meses'
         self.assertEqual(self.preferred_synonyms._postprocess_translation(phrase),
-                         'La médica recomienda el uso de un método anticonceptivo tras el parto durante tres meses',
+                         'La médica recomienda el uso de un método anticonceptivo translations el parto durante tres meses',
                          "synonym replacement should change 'método contraceptivo' to 'método anticonceptivo'")
 
     def test_can_chain_synonym_replacement(self):
