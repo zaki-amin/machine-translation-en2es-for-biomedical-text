@@ -73,6 +73,11 @@ class TestAbbreviations(unittest.TestCase):
                          "The clinic screens patients with the geriatric depression scale: this is effective at "
                          "finding loneliness in older adults.")
 
+    def test_expansion_is_case_sensitive(self):
+        self.assertEqual(self.abbr.expand_all_abbreviations_spanish("si"),
+                         "si",
+                         "si should not expand to sistema internacional de unidades for SI")
+
     def test_preprocessing_expands_abbreviations_in_all_sentences(self):
         english_inputs = ["The patient's tRNA does not function properly, indicating ribosomal damage.",
                           "Her symptoms and travel history suggest she has contracted CHIKV."]
