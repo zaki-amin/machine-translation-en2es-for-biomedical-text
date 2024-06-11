@@ -4,8 +4,7 @@ from processing.abbreviations import Abbreviations
 
 
 class TestAbbreviations(unittest.TestCase):
-    abbreviation_filename = ("/Users/zaki/PycharmProjects/hpo_translation/processing/dictionaries/processed"
-                             "/abbreviations.jsonl")
+    abbreviation_filename = "../dictionaries/processed/abbreviations.jsonl"
     abbr = Abbreviations(abbreviation_filename, pre_exp=True, post_exp=True)
 
     def test_loading_abbreviation_dict_english(self):

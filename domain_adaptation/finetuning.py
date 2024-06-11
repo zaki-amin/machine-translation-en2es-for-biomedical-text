@@ -208,7 +208,7 @@ def login_and_get_repo(hf_token: str):
 
 if __name__ == "__main__":
     # train_directory = "smalldata/"
-    train_directory = "/home/zakiamin/PycharmProjects/hpo_translation/corpus/train"
+    train_directory = "../corpus/train"
     token = "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"
     epochs, lr, batch_size = 3, 2e-6, 8
     main(token, train_directory, epochs, lr, batch_size)

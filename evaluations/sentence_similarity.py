@@ -4,6 +4,7 @@ from evaluate import load
 from sentence_transformers import SentenceTransformer, util
 from torchmetrics.text import TranslationEditRate
 
+# Download the model before the first run
 # nltk.download('punkt')
 similarity_model = SentenceTransformer("paraphrase-multilingual-mpnet-base-v2")
 sacrebleu = load("sacrebleu")

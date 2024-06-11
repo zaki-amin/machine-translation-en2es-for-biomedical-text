@@ -97,7 +97,7 @@ def main(hf_token: str,
 
 
 if __name__ == "__main__":
-    train_directory = "/home/zakiamin/PycharmProjects/hpo_translation/corpus/train/"
+    train_directory = "../corpus/train/"
     token = "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"
     seed = 17
     torch.manual_seed(seed)

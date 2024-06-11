@@ -1,6 +1,6 @@
 import json
 
-jsonl_file = "/Users/zaki/PycharmProjects/hpo_translation/processing/dictionaries/processed/preferred_en2es.jsonl"
+jsonl_file = "../processing/dictionaries/processed/preferred_en2es.jsonl"
 
 
 def reduce_preferred_en2es(input_file: str, output_file: str):

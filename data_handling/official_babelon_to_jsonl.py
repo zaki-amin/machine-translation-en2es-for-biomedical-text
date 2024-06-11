@@ -16,4 +16,4 @@ def write_jsonl(filename: str):
 
 
 if __name__ == "__main__":
-    write_jsonl("/Users/zaki/Desktop/Estudios/Master's thesis/Resources/HPO data/hp-es.babelon.tsv")
+    write_jsonl("../translation/hpo/official/hp-es.babelon.tsv")

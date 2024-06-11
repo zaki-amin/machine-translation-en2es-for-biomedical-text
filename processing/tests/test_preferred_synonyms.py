@@ -4,8 +4,7 @@ from processing.preferred_synonyms import PreferredSynonyms
 
 
 class TestPreferredSynonyms(unittest.TestCase):
-    synonyms_filename = ("/Users/zaki/PycharmProjects/hpo_translation/processing/dictionaries/processed"
-                         "/preferred-synonyms-es.jsonl")
+    synonyms_filename = "../processing/dictionaries/processed/preferred-synonyms-es.jsonl"
     preferred_synonyms = PreferredSynonyms(synonyms_filename)
 
     def test_synonym_dictionary_built_correctly(self):
@@ -60,4 +59,5 @@ class TestPreferredSynonyms(unittest.TestCase):
         self.assertEqual(self.preferred_synonyms._postprocess_translation(phrase),
                          "El tronco pulmonar es una arteria que lleva sangre desoxigenada desde el corazón a los "
                          "pulmones",
-                         'Replace "tronco arterial pulmonar to tronco pulmonar" instead of "tronco arterial" to "tronco arterioso"')
+                         'Replace "tronco arterial pulmonar to tronco pulmonar" instead of "tronco arterial" to '
+                         '"tronco arterioso"')
