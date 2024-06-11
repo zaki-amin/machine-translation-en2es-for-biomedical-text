@@ -37,12 +37,12 @@ def main(hf_token: str,
 
 if __name__ == "__main__":
     train_directory = "../corpus/train/"
-    token = "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"
+    token = input("Enter Hugging Face API token: ")
     seed = 17
     torch.manual_seed(seed)
     epochs_per_corpus, batch_size = 3, 8
-    # smaller datasets with larger learning rates
 
+    # smaller datasets with larger learning rates
     lrs = {"khresmoi-tr": 1e-5,
            "orphanet-definitions-tr": 8e-6,
            "pubmed-tr": 2e-7,

@@ -98,7 +98,7 @@ def main(hf_token: str,
 
 if __name__ == "__main__":
     train_directory = "../corpus/train/"
-    token = "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"
+    token = input("Enter Hugging Face API token: ")
     seed = 17
     torch.manual_seed(seed)
     epochs, lr, batch_size = 25, 1e-5, 8
