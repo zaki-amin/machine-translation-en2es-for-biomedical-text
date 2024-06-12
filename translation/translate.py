@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -39,15 +40,11 @@ def translate_text(inputs: list[str], model_checkpoint: str):
     return results
 
 
-def translate_hpo(hpo_id: str, model_checkpoint: str, batch_size: int = 32):
-    """
-    Translates an HPO term and all its descendants by ID and saves the translations as an XLSX file in results/
-    directory.
+def translate_hpo(hpo_id: str, model_checkpoint: str, batch_size: int = 32) -> pd.DataFrame:
+    """Translates an HPO term and all its descendants and returns a dataframe
     :param hpo_id: HPO ID in the form HP:XXXXXXX.
     :param model_checkpoint: Checkpoint name.
-    :param batch_size: Batch size for model to speed up inference.
-
-    """
+    :param batch_size: Batch size for model to speed up inference."""
     device, model, tokenizer = load_model(model_checkpoint)
 
     # HPO dataset
@@ -69,8 +66,4 @@ def translate_hpo(hpo_id: str, model_checkpoint: str, batch_size: int = 32):
         else:
             dataset.trans[i, "kind"] = dataset.terms[i, "header"]
 
-    # Save the pairs as an Excel
-    out_dir = "results/"
-    dataset.save_pairs(out_dir, hpo_id + ".xlsx")
-
-    return dataset
+    return dataset.translation_pairs().to_pandas()

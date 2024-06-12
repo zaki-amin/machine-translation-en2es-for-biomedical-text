@@ -26,7 +26,6 @@ class SimilarityMetric(Enum):
         :param candidate: model-produced translated term
         :return: similarity score when evaluating this specific metric
         """
-
         match self:
             case SimilarityMetric.SIMPLE:
                 return 1 if reference == candidate else 0
@@ -40,17 +39,29 @@ class SimilarityMetric(Enum):
                 return round(results["score"], 1)
 
             case SimilarityMetric.TER:
-                return ter(reference, candidate)[0].item()
+                score = ter(reference, candidate)[0].item()
+                return round(score, 1)
 
             case SimilarityMetric.SEMANTIC_SIMILARITY:
                 query_embedding = similarity_model.encode(reference)
                 passage_embedding = similarity_model.encode(candidate)
-                cosine_similarity = util.cos_sim(query_embedding, passage_embedding)
-                return cosine_similarity[0].item()
+                score = util.cos_sim(query_embedding, passage_embedding)[0].item()
+                return round(score * 100, 1)
+
+    def __str__(self):
+        match self:
+            case SimilarityMetric.SIMPLE:
+                return "simple"
+            case SimilarityMetric.SACREBLEU:
+                return "sacrebleu"
+            case SimilarityMetric.TER:
+                return "'ter'"
+            case SimilarityMetric.SEMANTIC_SIMILARITY:
+                return "semsim"
 
 
 if __name__ == "__main__":
     reference = "Le harán la prueba para el Zika durante el embarazo."
     prediction = "Se le hará una prueba para detectar el virus del Zika durante el embarazo."
     for metric in SimilarityMetric:
-        print(f"{metric.name}: {metric.evaluate(reference, prediction)}")
+        print(f"{metric}: {metric.evaluate(reference, prediction)}")
