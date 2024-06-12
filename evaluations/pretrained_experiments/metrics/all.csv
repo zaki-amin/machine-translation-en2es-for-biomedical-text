@@ -1,4 +1,4 @@
-model,filename,sacrebleu,`ter`,semsim
+model,filename,sacrebleu,'ter',semsim
 helsinki-nlp,clinspen-tr.csv,38.8,52.3,92.2
 helsinki-nlp,khresmoi-tr.csv,47.9,63.4,95.5
 helsinki-nlp,medline.csv,54.4,66.3,93.7

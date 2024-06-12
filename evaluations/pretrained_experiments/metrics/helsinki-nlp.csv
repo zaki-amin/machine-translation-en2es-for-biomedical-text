@@ -1,4 +1,4 @@
-model,filename,sacrebleu,`ter`,semsim
+model,filename,sacrebleu,'ter',semsim
 helsinki-nlp,preferred-en2es.csv,26.2,41.0,87.0
 helsinki-nlp,orphanet-definitions-tr.csv,45.5,56.9,93.6
 helsinki-nlp,snomed.csv,28.1,30.8,81.4

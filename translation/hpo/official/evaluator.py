@@ -1,6 +1,6 @@
 import pandas as pd
 
-from evaluations.sentence_similarity import SimilarityMetric
+from evaluations.sentence_similarity import SentenceSimilarity
 from translation.hpo.official.translations import read_official_translations
 from translation.translate import translate_hpo
 
@@ -23,7 +23,7 @@ def compare_translations(model_df: pd.DataFrame, official_df: pd.DataFrame) -> p
     """Combines model translations with official translations and evaluates all metrics
     :return: Combined dataframe with a new column for each similarity metric"""
     merged_df = pd.merge(model_df, official_df, on='hpo_id', how='inner')
-    for metric in SimilarityMetric:
+    for metric in SentenceSimilarity:
         merged_df[str(metric)] = merged_df.apply(
             lambda row: metric.evaluate(row['reference'], row['translation']),
             axis=1)

@@ -1,4 +1,4 @@
-filename,sacrebleu,`ter`,semsim
+filename,sacrebleu,'ter',semsim
 clinspen.csv,49.7,60.4,93.1
 pubmed-te.csv,45.2,54.8,92.2
 hpo.csv,47.3,62.9,92.0

@@ -4,7 +4,7 @@ from collections import defaultdict
 
 from tqdm import tqdm
 
-from evaluations.sentence_similarity import SimilarityMetric
+from evaluations.sentence_similarity import SentenceSimilarity
 
 
 class PreferredSynonyms:
@@ -13,7 +13,7 @@ class PreferredSynonyms:
         self.synonyms_dictionary = self._build_preferred_synonyms_dictionary()
         # Order synonym dictionary by length so longer terms are replaced first
         self.sorted_synonyms = sorted(self.synonyms_dictionary.items(), key=lambda x: len(x[0].split()), reverse=True)
-        self.semantic_similarity = SimilarityMetric.SEMANTIC_SIMILARITY
+        self.semantic_similarity = SentenceSimilarity.SEMANTIC_SIMILARITY
 
     def _build_preferred_synonyms_dictionary(self) -> dict[str, list[str]]:
         """Builds a preferred synonym dictionary, mapping from a term to its preferred synonym

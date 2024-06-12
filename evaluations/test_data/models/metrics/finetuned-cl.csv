@@ -1,4 +1,4 @@
-model,filename,sacrebleu,`ter`,semsim
+model,filename,sacrebleu,'ter',semsim
 finetuned-cl,pubmed-te.csv,48.2,57.9,94.0
 finetuned-cl,clinspen-te.csv,40.7,54.2,92.8
 finetuned-cl,hpo.csv,49.8,62.8,92.6

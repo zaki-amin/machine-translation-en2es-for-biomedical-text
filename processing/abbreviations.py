@@ -3,7 +3,7 @@ import string
 
 from tqdm import tqdm
 
-from evaluations.sentence_similarity import SimilarityMetric
+from evaluations.sentence_similarity import SentenceSimilarity
 
 
 class Abbreviations:
@@ -12,7 +12,7 @@ class Abbreviations:
         self.pre_exp = pre_exp
         self.post_exp = post_exp
         self.abbreviation_dictionary_en, self.abbreviation_dictionary_es = self._build_abbreviations_dictionary()
-        self.semantic_similarity = SimilarityMetric.SEMANTIC_SIMILARITY
+        self.semantic_similarity = SentenceSimilarity.SEMANTIC_SIMILARITY
 
     def _build_abbreviations_dictionary(self) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
         """Iterates over the abbreviation file and builds English and Spanish abbreviation dictionaries. Each
