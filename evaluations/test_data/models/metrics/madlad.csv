@@ -1,6 +1,0 @@
-model,filename,sacrebleu,'ter',semsim
-madlad,orphanet-definitions-te.csv,50.7,59.9,93.8
-madlad,hpo.csv,53.8,63.8,92.8
-madlad,pubmed-te.csv,51.6,60.1,94.3
-madlad,khresmoi-te.csv,50.0,65.3,96.1
-madlad,clinspen-te.csv,37.6,51.5,90.5

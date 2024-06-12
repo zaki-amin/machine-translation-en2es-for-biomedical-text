@@ -1,6 +1,0 @@
-model,filename,sacrebleu,'ter',semsim
-finetuned-all,pubmed-te.csv,45.9,56.1,93.5
-finetuned-all,clinspen-te.csv,54.5,65.1,94.1
-finetuned-all,hpo.csv,48.7,64.5,92.6
-finetuned-all,orphanet-definitions-te.csv,61.4,69.4,96.0
-finetuned-all,khresmoi-te.csv,47.9,62.6,95.7
