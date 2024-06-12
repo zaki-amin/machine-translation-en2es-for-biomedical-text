@@ -33,7 +33,7 @@ class CorpusSimilarity(Enum):
             case CorpusSimilarity.TER:
                 references = [[ref] for ref in references]
                 predictions = [cand for cand in predictions]
-                ter = TranslationEditRate(return_sentence_level_score=False, lowercase=False)
+                ter = TranslationEditRate(return_sentence_level_score=False, lowercase=False, normalize=True)
                 inverted_score = 1 - ter(predictions, references).item()
                 return round(inverted_score * 100, 1)
 

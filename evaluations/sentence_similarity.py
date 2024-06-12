@@ -10,7 +10,7 @@ similarity_model = SentenceTransformer("paraphrase-multilingual-mpnet-base-v2")
 
 lowercase = True
 sacrebleu = load("sacrebleu")
-ter = TranslationEditRate(return_sentence_level_score=True, lowercase=lowercase)
+ter = TranslationEditRate(return_sentence_level_score=True, lowercase=lowercase, normalize=True, no_punctuation=True)
 
 
 class SentenceSimilarity(Enum):
@@ -38,7 +38,8 @@ class SentenceSimilarity(Enum):
                 results = sacrebleu.compute(predictions=predictions,
                                             references=references,
                                             use_effective_order=True,
-                                            lowercase=True)
+                                            tokenize="intl",
+                                            lowercase=lowercase)
                 return round(results["score"], 1)
 
             case SentenceSimilarity.TER:
