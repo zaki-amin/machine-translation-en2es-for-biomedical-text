@@ -1,4 +1,4 @@
-# Biomedical Translation including HPO
+# Machine Translation for Biomedicine (inc. HPO)
 Biomedical domain-specific translation from English to Spanish
 
 
