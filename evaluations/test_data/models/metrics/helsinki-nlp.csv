@@ -1,0 +1,6 @@
+model,filename,sacrebleu,'ter',semsim
+helsinki-nlp,pubmed-te.csv,48.7,62.0,94.0
+helsinki-nlp,clinspen-te.csv,40.2,55.1,92.1
+helsinki-nlp,hpo.csv,48.2,60.1,92.2
+helsinki-nlp,orphanet-definitions-te.csv,46.4,62.2,93.9
+helsinki-nlp,khresmoi-te.csv,49.6,67.6,95.9
