@@ -8,9 +8,8 @@ from domain_adaptation.finetuning import FineTuning, login_and_get_repo
 
 
 class FineTuningTrainer(FineTuning):
-    def __init__(self, checkpoint_name: str, device: str):
+    def __init__(self, checkpoint_name: str):
         super().__init__(checkpoint_name)
-        self.device = device
 
     def finetune_with_trainer(self,
                               corpora: DatasetDict,
@@ -83,11 +82,10 @@ def main(hf_token: str,
          epochs: int,
          lr: float,
          train_batch_size: int,
-         eval_batch_size: int,
-         device: str):
+         eval_batch_size: int):
     model_name, repo = login_and_get_repo(hf_token)
     biomedical_corpora = load_all_corpora(train_filepath, 0.1, 42)
-    trainer_fine_tuning = FineTuningTrainer("Helsinki-NLP/opus-mt-en-es", device)
+    trainer_fine_tuning = FineTuningTrainer("Helsinki-NLP/opus-mt-en-es")
     trainer_fine_tuning.finetune_with_trainer(biomedical_corpora,
                                               model_name,
                                               lr,
@@ -102,7 +100,4 @@ if __name__ == "__main__":
     seed = 17
     torch.manual_seed(seed)
     epochs, lr, batch_size = 25, 1e-5, 8
-    # Check if GPU is available
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    print(f"Device: {device}")
-    main(token, train_directory, epochs, lr, batch_size, batch_size * 2, device)
+    main(token, train_directory, epochs, lr, batch_size, batch_size * 2)

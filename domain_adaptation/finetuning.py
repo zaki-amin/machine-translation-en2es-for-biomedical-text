@@ -15,9 +15,9 @@ from domain_adaptation.corpus import load_all_corpora
 class FineTuning:
     def __init__(self, checkpoint_name: str):
         self.checkpoint_name = checkpoint_name
-
         self.generation_config = generation_config()
-        self.model = MarianMTModel.from_pretrained(checkpoint_name, device_map=cuda_if_possible())
+        self.device = cuda_if_possible()
+        self.model = MarianMTModel.from_pretrained(checkpoint_name, device_map=self.device)
         self.tokenizer = MarianTokenizer.from_pretrained(checkpoint_name)
         # Using PyTorch hence 'pt'
         self.data_collator = DataCollatorForSeq2Seq(tokenizer=self.tokenizer,
@@ -56,107 +56,6 @@ class FineTuning:
         decoded_labels = [[label.strip()] for label in decoded_labels]
         return decoded_predictions, decoded_labels
 
-    def finetune_model(self,
-                       corpora: DatasetDict,
-                       train_epochs: int,
-                       learning_rate: float,
-                       batch_size: int,
-                       output_dir: str,
-                       repo: Repository,
-                       seed: int = 17) -> list[tuple[int, float]]:
-        """Fine-tunes the model
-        :param corpora: the datasets to fine-tune the model on
-        :param train_epochs: the number of epochs to train for
-        :param batch_size: the batch size to use for training and evaluation
-        :param learning_rate: the learning rate to use for training
-        :param output_dir: the directory to save the model to
-        :param repo: the Hugging Face repository to push the model to
-        :param seed: the random seed to use for reproducibility
-        :return: a list of tuples containing the epoch and BLEU score
-        """
-        tokenized_texts = self.tokenize_all_datasets(corpora)
-        torch.manual_seed(seed)
-        train_dataloader = DataLoader(
-            tokenized_texts["train"],
-            shuffle=True,
-            collate_fn=self.data_collator,
-            batch_size=batch_size,
-        )
-        validation_dataloader = DataLoader(
-            tokenized_texts["validation"],
-            collate_fn=self.data_collator,
-            batch_size=batch_size,
-        )
-
-        optimizer = AdamW(self.model.parameters(), lr=learning_rate)
-        accelerator = Accelerator()
-        model, optimizer, train_dataloader, eval_dataloader = accelerator.prepare(
-            self.model, optimizer, train_dataloader, validation_dataloader
-        )
-
-        num_update_steps_per_epoch = len(train_dataloader)
-        num_training_steps = train_epochs * num_update_steps_per_epoch
-
-        lr_scheduler = get_scheduler(
-            "reduce_lr_on_plateau",
-            optimizer=optimizer,
-            num_warmup_steps=0,
-            num_training_steps=num_training_steps,
-        )
-
-        epoch_results = []
-        progress_bar = tqdm(range(num_training_steps))
-        for epoch in range(train_epochs):
-            # Training
-            model.train()
-            for batch in train_dataloader:
-                outputs = model(**batch)
-                loss = outputs.loss
-                accelerator.backward(loss)
-
-                optimizer.step()
-                optimizer.zero_grad()
-                progress_bar.update(1)
-
-            # Evaluation
-            model.eval()
-            total_eval_loss = 0
-            for batch in tqdm(eval_dataloader):
-                with torch.no_grad():
-                    outputs = model(**batch)
-                    loss = outputs.loss
-                    total_eval_loss += loss.item()
-
-                    generated_tokens = accelerator.unwrap_model(model).generate(
-                        batch["input_ids"],
-                        attention_mask=batch["attention_mask"],
-                        max_length=self.generation_config.max_length,
-                        num_beams=self.generation_config.num_beams,
-                        bad_words_ids=self.generation_config.bad_words_ids,
-                        forced_eos_token_id=self.generation_config.forced_eos_token_id,
-                    )
-
-                labels = batch["labels"]
-                generated_tokens = accelerator.pad_across_processes(
-                    generated_tokens, dim=1, pad_index=self.tokenizer.pad_token_id
-                )
-                labels = accelerator.pad_across_processes(labels, dim=1, pad_index=-100)
-                predictions_gathered = accelerator.gather(generated_tokens)
-                labels_gathered = accelerator.gather(labels)
-                decoded_preds, decoded_labels = self.postprocess(predictions_gathered, labels_gathered)
-                self.metric.add_batch(predictions=decoded_preds, references=decoded_labels)
-
-            avg_val_loss = total_eval_loss / len(eval_dataloader)
-            lr_scheduler.step(avg_val_loss)
-
-            results = self.metric.compute()
-            print(f"Epoch {epoch + 1}, BLEU score: {results['score']:.2f}")
-            epoch_results.append((epoch + 1, results["score"]))
-
-            self.save_and_upload(accelerator, epoch, model, output_dir, repo)
-
-        return epoch_results
-
     def save_and_upload(self, accelerator, epoch, model, output_dir, repo):
         accelerator.wait_for_everyone()
         unwrapped_model = accelerator.unwrap_model(model)
@@ -167,14 +66,6 @@ class FineTuning:
             repo.push_to_hub(
                 commit_message=f"Training in progress epoch {epoch}", blocking=False
             )
-
-
-def cuda_if_possible() -> str:
-    """If a GPU is available, empties cache and returns 'cuda', otherwise returns 'cpu'"""
-    if torch.cuda.is_available():
-        torch.cuda.empty_cache()
-        return "cuda"
-    return "cpu"
 
 
 def generation_config() -> GenerationConfig:
@@ -188,15 +79,6 @@ def generation_config() -> GenerationConfig:
     return gen_config
 
 
-def main(hf_token: str, train_filepath: str, epochs: int, lr: float, batch_size: int):
-    model_name, repo = login_and_get_repo(hf_token)
-
-    biomedical_corpora = load_all_corpora(train_filepath, 0.1, 42)
-    fine_tuning = FineTuning("Helsinki-NLP/opus-mt-en-es")
-    epoch_results = fine_tuning.finetune_model(biomedical_corpora, epochs, lr, batch_size, model_name, repo)
-    print(epoch_results)
-
-
 def login_and_get_repo(hf_token: str):
     huggingface_hub.login(token=hf_token)
     model_name = "helsinki-biomedical-finetuned"
@@ -206,8 +88,11 @@ def login_and_get_repo(hf_token: str):
     return model_name, repo
 
 
-if __name__ == "__main__":
-    train_directory = "../corpus/train"
-    token = input("Enter Hugging Face API token: ")
-    epochs, lr, batch_size = 3, 2e-6, 8
-    main(token, train_directory, epochs, lr, batch_size)
+def cuda_if_possible() -> str:
+    """If a GPU is available, empties cache and returns 'cuda', otherwise 'cpu'"""
+    device = "cpu"
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        device = "cuda"
+    print(f"Using device: {device}")
+    return device

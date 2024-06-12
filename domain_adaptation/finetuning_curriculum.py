@@ -10,18 +10,13 @@ def main(hf_token: str,
          epochs_per_corpus: int,
          lrs: dict[str, float],
          train_batch_size: int,
-         eval_batch_size: int,
-         device: str):
+         eval_batch_size: int):
     model_name, repo = login_and_get_repo(hf_token)
-    trainer_fine_tuning = FineTuningTrainer("Helsinki-NLP/opus-mt-en-es", device)
+    trainer_fine_tuning = FineTuningTrainer("Helsinki-NLP/opus-mt-en-es")
 
     # ordered by target vocabulary size from smallest to largest
     ordered_corpora = ["khresmoi-tr", "orphanet-terms", "clinspen-tr", "medline", "preferred-en2es", "snomed",
                        "orphanet-definitions-tr", "pubmed-tr"]
-
-    # ordered by target length from smallest to largest
-    # ordered_corpora = ["preferred-en2es", "orphanet-terms", "clinspen-tr", "snomed", "medline", "khresmoi-tr",
-    # "pubmed-tr", "orphanet-definitions-tr"]
 
     for filename in ordered_corpora:
         full_filename = train_filepath + filename + ".jsonl"
@@ -52,6 +47,4 @@ if __name__ == "__main__":
            "snomed": 2e-7,
            "preferred-en2es": 1e-7}
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    print(f"Device: {device}")
-    main(token, train_directory, epochs_per_corpus, lrs, batch_size, batch_size * 2, device)
+    main(token, train_directory, epochs_per_corpus, lrs, batch_size, batch_size * 2)
