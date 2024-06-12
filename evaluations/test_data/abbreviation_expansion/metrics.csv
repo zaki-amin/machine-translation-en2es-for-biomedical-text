@@ -1,0 +1,6 @@
+filename,sacrebleu,'ter',semsim
+pubmed-te.csv,45.4,58.4,92.2
+clinspen-te.csv,50.2,63.4,93.1
+hpo.csv,47.7,58.3,92.0
+orphanet-definitions-te.csv,61.2,73.2,95.7
+khresmoi-te.csv,47.1,64.9,94.7
