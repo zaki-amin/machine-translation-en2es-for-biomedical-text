@@ -4,7 +4,7 @@ from processing.preferred_synonyms import PreferredSynonyms
 
 
 class TestPreferredSynonyms(unittest.TestCase):
-    synonyms_filename = "../dictionaries/processed/preferred-synonyms-es.jsonl"
+    synonyms_filename = "../dictionaries/preferred-synonyms-es.jsonl"
     preferred_synonyms = PreferredSynonyms(synonyms_filename)
 
     def test_synonym_dictionary_built_correctly(self):

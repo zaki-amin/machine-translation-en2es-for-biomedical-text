@@ -148,8 +148,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print("CLI arguments:", args)
 
-    abbreviations = Abbreviations("../../processing/dictionaries/processed/abbreviations.jsonl",
+    abbreviations = Abbreviations("../../processing/dictionaries/abbreviations.jsonl",
                                   args.preexpansion, args.postexpansion)
-    synonyms = None if not args.synonyms else PreferredSynonyms("../../processing/dictionaries/processed"
-                                                                "/preferred-synonyms-es.jsonl")
+    synonyms = None if not args.synonyms else PreferredSynonyms(
+        "../../processing/dictionaries/preferred-synonyms-es.jsonl")
     main(args.input_file, args.output_file, args.evaluate, abbreviations, synonyms)

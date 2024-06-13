@@ -13,5 +13,5 @@ def remove_duplicate_abbreviations(input_file: str, output_file: str):
 
 if __name__ == '__main__':
     remove_duplicate_abbreviations(
-        "../processing/dictionaries/processed/abbreviations.jsonl",
+        "../processing/dictionaries/abbreviations.jsonl",
         "abbreviations.jsonl")
