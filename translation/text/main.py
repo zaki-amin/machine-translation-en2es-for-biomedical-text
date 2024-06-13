@@ -3,7 +3,7 @@ import json
 
 import pandas as pd
 
-from evaluations.sentence_similarity import SentenceSimilarity
+from evaluations.similarity.sentence_similarity import SentenceSimilarity
 from processing.abbreviations import Abbreviations
 from processing.preferred_synonyms import PreferredSynonyms
 from translation.translate import translate_text
@@ -121,7 +121,7 @@ def evaluate_translations(df: pd.DataFrame) -> pd.DataFrame:
 
     print("Evaluating translations...")
     df['sacrebleu'] = df.apply(sacrebleu, axis=1)
-    df[''ter''] = df.apply(ter, axis=1)
+    df["'ter'"] = df.apply(ter, axis=1)
     df['semsim'] = df.apply(semsim, axis=1)
     return df
 

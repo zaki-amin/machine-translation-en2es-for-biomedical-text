@@ -3,7 +3,7 @@ import string
 
 from tqdm import tqdm
 
-from evaluations.sentence_similarity import SentenceSimilarity
+from evaluations.similarity.sentence_similarity import SentenceSimilarity
 
 
 class Abbreviations:
