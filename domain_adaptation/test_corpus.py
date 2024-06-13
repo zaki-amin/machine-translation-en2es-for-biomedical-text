@@ -9,7 +9,8 @@ class TestCorpus(unittest.TestCase):
     corpora = load_all_corpora(directory_path, 0.2, 42)
 
     def test_all_filepaths_constructed_correctly(self):
-        self.assertIn("../corpus/train/khresmoi-tr.jsonl", self.filepaths, "khresmoi filepath not constructed correctly")
+        self.assertIn("../corpus/train/khresmoi-tr.jsonl", self.filepaths,
+                      "khresmoi filepath not constructed correctly")
         self.assertEqual(len(self.filepaths), 8, "not all filepaths found")
 
     def test_corpus_data_loads_correctly(self):

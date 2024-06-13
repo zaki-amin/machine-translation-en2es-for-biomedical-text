@@ -20,20 +20,19 @@ def translate_no_evaluate(input_file: str,
     Writes the output CSV to a file with the following columns:
     - 'en': the original English sentence
     - 'es': the model's translation"""
+    data = {}
     if ".txt" in input_file:
-        is_jsonl = False
         english_inputs = read_text_file(input_file)
     else:
-        is_jsonl = True
         english_inputs, spanish_references = read_jsonl_file(input_file)
+        data['reference'] = spanish_references
 
     spanish_outputs = translate_english_inputs(english_inputs,
                                                abbreviations,
                                                synonyms,
                                                checkpoint)
-    data = {'english': english_inputs, 'candidate': spanish_outputs}
-    if is_jsonl:
-        data['reference'] = spanish_references
+    data['english'] = english_inputs
+    data['candidate'] = spanish_outputs
     df = pd.DataFrame(data)
     df.to_csv(output_file, index=False, header=True)
 
@@ -148,8 +147,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print("CLI arguments:", args)
 
-    abbreviations = Abbreviations("../../processing/dictionaries/abbreviations.jsonl",
-                                  args.preexpansion, args.postexpansion)
-    synonyms = None if not args.synonyms else PreferredSynonyms(
+    abbreviation_expansion = Abbreviations("../../processing/dictionaries/abbreviations.jsonl",
+                                           args.preexpansion, args.postexpansion)
+    synonym_replacement = None if not args.synonyms else PreferredSynonyms(
         "../../processing/dictionaries/preferred-synonyms-es.jsonl")
-    main(args.input_file, args.output_file, args.evaluate, abbreviations, synonyms)
+    main(args.input_file, args.output_file, args.evaluate, abbreviation_expansion, synonym_replacement)

@@ -66,7 +66,7 @@ class SentenceSimilarity(Enum):
 
 
 if __name__ == "__main__":
-    reference = "Le harán la prueba para el Zika durante el embarazo."
-    candidate = "Se le hará una prueba para detectar el virus del Zika durante el embarazo."
+    reference_translation = "Le harán la prueba para el Zika durante el embarazo."
+    candidate_translation = "Se le hará una prueba para detectar el virus del Zika durante el embarazo."
     for metric in SentenceSimilarity:
-        print(f"{metric}: {metric.evaluate(reference, candidate)}")
+        print(f"{metric}: {metric.evaluate(reference_translation, candidate_translation)}")

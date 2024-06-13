@@ -29,16 +29,17 @@ def get_all_filepaths(directory_path: str) -> list[str]:
 
 def load_all_corpora(directory_path: str, validation_proportion: float, seed: int) -> DatasetDict:
     """Loads all corpora in a directory and concatenates them into a single DatasetDict"""
-    concatenated_datasets = {}
+    all_datasets = {}
     for filepath in get_all_filepaths(directory_path):
         corpus = load_corpus(filepath, validation_proportion, seed)
         # Concatenate each key separately
         for split in corpus.keys():
-            if split not in concatenated_datasets:
-                concatenated_datasets[split] = corpus[split]
+            if split not in all_datasets:
+                all_datasets[split] = corpus[split]
             else:
-                concatenated_datasets[split] = concatenate_datasets([concatenated_datasets[split], corpus[split]])
+                to_join = [all_datasets[split], corpus[split]]
+                all_datasets[split] = concatenate_datasets(to_join)
 
-    large_dataset_dict = DatasetDict(concatenated_datasets)
+    large_dataset_dict = DatasetDict(all_datasets)
     shuffle_dataset_dict(large_dataset_dict, seed + 1)
     return large_dataset_dict

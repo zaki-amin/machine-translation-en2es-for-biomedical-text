@@ -2,14 +2,9 @@ import evaluate
 import huggingface_hub
 import numpy as np
 import torch
-from accelerate import Accelerator
 from datasets import DatasetDict
 from huggingface_hub import Repository, get_full_repo_name
-from torch.utils.data import DataLoader
-from tqdm.auto import tqdm
-from transformers import DataCollatorForSeq2Seq, MarianTokenizer, MarianMTModel, AdamW, get_scheduler, GenerationConfig
-
-from domain_adaptation.corpus import load_all_corpora
+from transformers import DataCollatorForSeq2Seq, MarianTokenizer, MarianMTModel, GenerationConfig
 
 
 class FineTuning:

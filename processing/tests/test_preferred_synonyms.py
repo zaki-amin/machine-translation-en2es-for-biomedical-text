@@ -22,7 +22,8 @@ class TestPreferredSynonyms(unittest.TestCase):
     def test_simple_replacement(self):
         phrase = 'La médica recomienda el uso de un método contraceptivo translations el parto durante tres meses'
         self.assertEqual(self.preferred_synonyms._postprocess_translation(phrase),
-                         'La médica recomienda el uso de un método anticonceptivo translations el parto durante tres meses',
+                         'La médica recomienda el uso de un método anticonceptivo translations el parto durante tres '
+                         'meses',
                          "synonym replacement should change 'método contraceptivo' to 'método anticonceptivo'")
 
     def test_can_chain_synonym_replacement(self):

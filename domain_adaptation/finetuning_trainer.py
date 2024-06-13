@@ -14,29 +14,29 @@ class FineTuningTrainer(FineTuning):
     def finetune_with_trainer(self,
                               corpora: DatasetDict,
                               model_name: str,
-                              lr: float,
+                              learning_rate: float,
                               train_batch_size: int,
                               eval_batch_size: int,
-                              epochs: int):
+                              training_epochs: int):
         tokenized_texts = self.tokenize_all_datasets(corpora)
         args = Seq2SeqTrainingArguments(
             model_name,
             evaluation_strategy="epoch",
             save_strategy="epoch",
-            learning_rate=lr,
+            learning_rate=learning_rate,
             per_device_train_batch_size=train_batch_size,
             per_device_eval_batch_size=eval_batch_size,
             lr_scheduler_type="cosine",
             metric_for_best_model="eval_loss",
             weight_decay=0.01,
             save_total_limit=3,
-            num_train_epochs=epochs,
+            num_train_epochs=training_epochs,
             predict_with_generate=True,
             fp16=True,
             push_to_hub=True,
             gradient_accumulation_steps=4,
         )
-        optimizer = AdamW(self.model.parameters(), lr=lr)
+        optimizer = AdamW(self.model.parameters(), lr=learning_rate)
         scheduler = get_scheduler(
             "cosine",
             optimizer=optimizer,
@@ -79,8 +79,8 @@ class FineTuningTrainer(FineTuning):
 
 def main(hf_token: str,
          train_filepath: str,
-         epochs: int,
-         lr: float,
+         training_epochs: int,
+         learning_rate: float,
          train_batch_size: int,
          eval_batch_size: int):
     model_name, repo = login_and_get_repo(hf_token)
@@ -88,10 +88,10 @@ def main(hf_token: str,
     trainer_fine_tuning = FineTuningTrainer("Helsinki-NLP/opus-mt-en-es")
     trainer_fine_tuning.finetune_with_trainer(biomedical_corpora,
                                               model_name,
-                                              lr,
+                                              learning_rate,
                                               train_batch_size,
                                               eval_batch_size,
-                                              epochs)
+                                              training_epochs)
 
 
 if __name__ == "__main__":

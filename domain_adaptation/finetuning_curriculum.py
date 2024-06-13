@@ -8,7 +8,7 @@ from domain_adaptation.finetuning_trainer import FineTuningTrainer
 def main(hf_token: str,
          train_filepath: str,
          epochs_per_corpus: int,
-         lrs: dict[str, float],
+         learning_rates: dict[str, float],
          train_batch_size: int,
          eval_batch_size: int):
     model_name, repo = login_and_get_repo(hf_token)
@@ -24,7 +24,7 @@ def main(hf_token: str,
         print(f"Training on {filename}")
         trainer_fine_tuning.finetune_with_trainer(corpus,
                                                   model_name,
-                                                  lrs[filename],
+                                                  learning_rates[filename],
                                                   train_batch_size,
                                                   eval_batch_size,
                                                   epochs_per_corpus)
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     token = input("Enter Hugging Face API token: ")
     seed = 17
     torch.manual_seed(seed)
-    epochs_per_corpus, batch_size = 3, 8
+    corpus_epochs, batch_size = 3, 8
 
     # smaller datasets with larger learning rates
     lrs = {"khresmoi-tr": 1e-5,
@@ -47,4 +47,4 @@ if __name__ == "__main__":
            "snomed": 2e-7,
            "preferred-en2es": 1e-7}
 
-    main(token, train_directory, epochs_per_corpus, lrs, batch_size, batch_size * 2)
+    main(token, train_directory, corpus_epochs, lrs, batch_size, batch_size * 2)
