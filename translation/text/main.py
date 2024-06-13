@@ -90,6 +90,7 @@ def translate_english_inputs(english_inputs: list[str],
     english_inputs = abbreviations.preprocess(english_inputs)
 
     # Translation with model
+    print("Translating with model...")
     spanish_outputs = translate_text(english_inputs, checkpoint)
 
     # Postprocessing
