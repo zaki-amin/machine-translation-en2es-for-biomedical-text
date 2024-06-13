@@ -1,4 +1,4 @@
-model,filename,sacrebleu,'ter',semsim
+model,filename,sacrebleu,`ter`,semsim
 nllb-3B,orphanet-definitions-tr.csv,45.3,59.7,93.8
 nllb-3B,clinspen-tr.csv,36.6,48.0,89.5
 nllb-3B,orphanet-terms.csv,38.4,53.1,93.2

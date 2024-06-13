@@ -53,6 +53,6 @@ class CorpusSimilarity(Enum):
             case CorpusSimilarity.SACREBLEU:
                 return "sacrebleu"
             case CorpusSimilarity.TER:
-                return "'ter'"
+                return "`ter`"
             case CorpusSimilarity.SEMANTIC_SIMILARITY:
                 return "semsim"

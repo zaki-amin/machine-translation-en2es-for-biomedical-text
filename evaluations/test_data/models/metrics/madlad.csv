@@ -1,4 +1,4 @@
-model,filename,sacrebleu,'ter',semsim
+model,filename,sacrebleu,`ter`,semsim
 madlad,pubmed-te.csv,51.8,63.8,94.3
 madlad,clinspen-te.csv,38.8,48.5,90.5
 madlad,hpo.csv,54.2,63.0,92.8

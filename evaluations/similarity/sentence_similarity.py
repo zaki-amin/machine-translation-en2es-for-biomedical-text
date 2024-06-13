@@ -48,9 +48,9 @@ class SentenceSimilarity(Enum):
 
             case SentenceSimilarity.SEMANTIC_SIMILARITY:
                 reference, candidate = reference.lower(), candidate.lower()
-                query_embedding = similarity_model.encode(reference)
-                passage_embedding = similarity_model.encode(candidate)
-                score = util.cos_sim(query_embedding, passage_embedding)[0].item()
+                reference_embedding = similarity_model.encode(reference)
+                candidate_embedding = similarity_model.encode(candidate)
+                score = util.cos_sim(reference_embedding, candidate_embedding)[0].item()
                 return round(score * 100, 1)
 
     def __str__(self):
@@ -60,13 +60,13 @@ class SentenceSimilarity(Enum):
             case SentenceSimilarity.SACREBLEU:
                 return "sacrebleu"
             case SentenceSimilarity.TER:
-                return "'ter'"
+                return "`ter`"
             case SentenceSimilarity.SEMANTIC_SIMILARITY:
                 return "semsim"
 
 
 if __name__ == "__main__":
     reference = "Le harán la prueba para el Zika durante el embarazo."
-    prediction = "Se le hará una prueba para detectar el virus del Zika durante el embarazo."
+    candidate = "Se le hará una prueba para detectar el virus del Zika durante el embarazo."
     for metric in SentenceSimilarity:
-        print(f"{metric}: {metric.evaluate(reference, prediction)}")
+        print(f"{metric}: {metric.evaluate(reference, candidate)}")

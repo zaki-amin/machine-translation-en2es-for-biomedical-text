@@ -21,6 +21,7 @@ def translate_no_evaluate(input_file: str,
     - 'en': the original English sentence
     - 'es': the model's translation"""
     if ".txt" in input_file:
+        is_jsonl = False
         english_inputs = read_text_file(input_file)
     else:
         is_jsonl = True
@@ -30,7 +31,7 @@ def translate_no_evaluate(input_file: str,
                                                abbreviations,
                                                synonyms,
                                                checkpoint)
-    data = {'english': english_inputs, 'translation': spanish_outputs}
+    data = {'english': english_inputs, 'candidate': spanish_outputs}
     if is_jsonl:
         data['reference'] = spanish_references
     df = pd.DataFrame(data)
@@ -63,11 +64,11 @@ def translate_and_evaluate(input_file: str,
     Translates, does any processing and evaluates with 3 metrics
 
     Writes the output CSV to a file with the following columns:
-    - 'original': the original English sentence
-    - 'reference': the actual provided translation
-    - 'translation': the translation from the model
+    - 'english': the original English sentence
+    - 'candidate': the model-produced translation
+    - 'reference': the provided reference translation
     - 'sacrebleu': the SacreBLEU score of the translation
-    - 'ter': the translation error rate of the translation
+    - '`ter`': the adjusted translation error rate of the translation
     - 'semsim': the semantic similarity score of the translation"""
     english_texts, spanish_references = read_jsonl_file(input_file)
 
@@ -75,7 +76,7 @@ def translate_and_evaluate(input_file: str,
                                                abbreviations,
                                                synonyms,
                                                checkpoint)
-    data = {'english': english_texts, 'reference': spanish_references, 'translation': spanish_outputs}
+    data = {'english': english_texts, 'candidate': spanish_outputs, 'reference': spanish_references}
     df = pd.DataFrame(data)
     df = evaluate_translations(df)
     df.to_csv(output_file, index=False, header=True)
@@ -105,23 +106,18 @@ def evaluate_translations(df: pd.DataFrame) -> pd.DataFrame:
     The new columns are 'sacrebleu' for the SacreBLEU score, 'semsim' for the semantic similarity score
     and 'wer' for the word error rate."""
 
-    round_digits = 1
-
     def sacrebleu(row):
-        score = SentenceSimilarity.SACREBLEU.evaluate(row['reference'], row['translation'])
-        return round(score, round_digits)
+        return SentenceSimilarity.SACREBLEU.evaluate(row['reference'], row['candidate'])
 
     def ter(row):
-        score = SentenceSimilarity.TER.evaluate(row['reference'], row['translation'])
-        return round(score, round_digits)
+        return SentenceSimilarity.TER.evaluate(row['reference'], row['candidate'])
 
     def semsim(row):
-        score = SentenceSimilarity.SEMANTIC_SIMILARITY.evaluate(row['reference'], row['translation'])
-        return round(score * 100, round_digits)
+        return SentenceSimilarity.SEMANTIC_SIMILARITY.evaluate(row['reference'], row['candidate'])
 
     print("Evaluating translations...")
     df['sacrebleu'] = df.apply(sacrebleu, axis=1)
-    df["'ter'"] = df.apply(ter, axis=1)
+    df["`ter`"] = df.apply(ter, axis=1)
     df['semsim'] = df.apply(semsim, axis=1)
     return df
 

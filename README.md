@@ -22,7 +22,7 @@ The output CSV file is a table with the following columns:
 
 If the `--evaluate` flag is on, the table additionally has these columns:
 * _sacrebleu_: sentence-level SacreBLEU score
-* _'ter'_: sentence-level 'TER' (1 - Translation Error Rate) 
+* _`ter`_: sentence-level `TER` (1 - Translation Error Rate) 
 * _semsim_: sentence-level semantic similarity 
 
 ## Translation of HPO terms
@@ -40,5 +40,5 @@ A CSV file named `<hpo_id>.csv` is created with the following columns:
 * _reference_: the official Spanish label of the term 
 * _simple_: a simple string comparison of the translation and label, 1 if they are identical and 0 otherwise
 * _sacrebleu_: sentence-level SacreBLEU score
-* _'ter'_: sentence-level 'TER' (1 - Translation Error Rate) 
+* _`ter`_: sentence-level `TER` (1 - Translation Error Rate) 
 * _semsim_: sentence-level semantic similarity 
