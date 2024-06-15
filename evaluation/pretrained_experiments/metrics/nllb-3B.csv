@@ -6,4 +6,4 @@ nllb-3B,medline.csv,51.9,67.2,93.2
 nllb-3B,pubmed-tr.csv,43.5,55.1,92.2
 nllb-3B,khresmoi-tr.csv,46.7,65.0,95.4
 nllb-3B,snomed.csv,18.7,12.6,79.7
-nllb-3B,preferred-en2es.csv,12.7,0.5,81.3
+nllb-3B,dptm.csv,12.7,0.5,81.3

@@ -15,7 +15,7 @@ def main(hf_token: str,
     trainer_fine_tuning = FineTuningTrainer("Helsinki-NLP/opus-mt-en-es")
 
     # ordered by target vocabulary size from smallest to largest
-    ordered_corpora = ["khresmoi-tr", "orphanet-terms", "clinspen-tr", "medline", "preferred-en2es", "snomed",
+    ordered_corpora = ["khresmoi-tr", "orphanet-terms", "clinspen-tr", "medline", "dptm", "snomed",
                        "orphanet-definitions-tr", "pubmed-tr"]
 
     for filename in ordered_corpora:
@@ -45,6 +45,6 @@ if __name__ == "__main__":
            "medline": 7e-7,
            "clinspen-tr": 6e-7,
            "snomed": 2e-7,
-           "preferred-en2es": 1e-7}
+           "dptm": 1e-7}
 
     main(token, train_directory, corpus_epochs, lrs, batch_size, batch_size * 2)

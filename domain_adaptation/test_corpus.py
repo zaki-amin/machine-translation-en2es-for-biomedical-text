@@ -4,7 +4,7 @@ from domain_adaptation.corpus import get_all_filepaths, load_corpus, load_all_co
 
 
 class TestCorpus(unittest.TestCase):
-    directory_path = "../corpus/train/"
+    directory_path = "../corpora/train/"
     filepaths = get_all_filepaths(directory_path)
     corpora = load_all_corpora(directory_path, 0.2, 42)
 
@@ -14,7 +14,7 @@ class TestCorpus(unittest.TestCase):
         self.assertEqual(len(self.filepaths), 8, "not all filepaths found")
 
     def test_corpus_data_loads_correctly(self):
-        filepath = "../corpus/train/medline.jsonl"
+        filepath = "../corpora/train/medline.jsonl"
         data = load_corpus(filepath, 0.2, 42)
 
         first_train_example = data["train"][0]
