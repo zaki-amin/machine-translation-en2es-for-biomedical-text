@@ -1,4 +1,4 @@
-# Machine Translation for Biomedical Text (inc. HPO)
+# Machine Translation en2es for Biomedical Text (inc. HPO)
 English-Spanish machine translation system for biomedical text and HPO terminology
 
 
