@@ -1,6 +1,6 @@
 import pandas as pd
 
-from evaluations.similarity.sentence_similarity import SentenceSimilarity
+from evaluation.similarity.sentence_similarity import SentenceSimilarity
 from translation.hpo.official.translations import read_official_translations
 from translation.translate import translate_hpo
 

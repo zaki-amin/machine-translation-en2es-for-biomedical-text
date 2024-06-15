@@ -4,7 +4,7 @@ from collections import defaultdict
 
 from tqdm import tqdm
 
-from evaluations.similarity.sentence_similarity import SentenceSimilarity
+from evaluation.similarity.sentence_similarity import SentenceSimilarity
 
 
 class PreferredSynonyms:

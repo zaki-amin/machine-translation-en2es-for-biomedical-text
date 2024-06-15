@@ -3,7 +3,7 @@ import json
 
 import pandas as pd
 
-from evaluations.similarity.sentence_similarity import SentenceSimilarity
+from evaluation.similarity.sentence_similarity import SentenceSimilarity
 from processing.abbreviations import Abbreviations
 from processing.preferred_synonyms import PreferredSynonyms
 from translation.translate import translate_text
