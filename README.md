@@ -27,10 +27,10 @@ If the `--evaluate` flag is on, the table additionally has these columns:
 
 ## Translation of HPO terms
 ```bash
-python translation/hpo/main.py <hpo_id> <model_checkpoint>
+python translation/hpo/main.py <hpo_id> --<model_checkpoint>
 ```
 * `<hpo_id>`: The HPO ID translate from. Captures all subterms recursively. Use HP:0000001 to evaluate on all terms. 
-* `<model_checkpoint>`: The model checkpoint to use for translation. Should be accessible on Hugging Face and have a MarianMT architecture, otherwise, the code requires editing.
+* `--<model_checkpoint>` (optional): The model checkpoint to use for translation. Should be accessible on Hugging Face and have a MarianMT architecture, otherwise, the code requires editing. If not provided, defaults to the best fine-tuned model _za17/helsinki-biomedical-finetuned_.
 
 ### Output
 A CSV file named `<hpo_id>.csv` is created with the following columns:
