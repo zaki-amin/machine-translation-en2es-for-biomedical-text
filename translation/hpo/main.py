@@ -8,7 +8,7 @@ def main():
         description="Enter a HPO ID and evaluate model translation on all descendants"
     )
     parser.add_argument("hpo_id", type=str, help="HPO ID in the form HP:XXXXXXX")
-    parser.add_argument("checkpoint", type=str, help="Model checkpoint")
+    parser.add_argument("--checkpoint", type=str, help="Model checkpoint", default="za17/helsinki-biomedical-finetuned")
     args = parser.parse_args()
     translate_and_evaluate(args.hpo_id, args.checkpoint)
 

@@ -12,6 +12,7 @@ def translate_and_evaluate(hpo_id: str, checkpoint: str):
     :param checkpoint: Model checkpoint"""
     print("---Generating translations---")
     translation_df = translate_hpo(hpo_id, checkpoint)
+    translation_df = translation_df.rename(columns={"translation": "candidate"})
 
     official_df = read_official_translations("official/hp-es.babelon.tsv", '\t')
     print("---Comparing translations---")
@@ -25,7 +26,7 @@ def compare_translations(model_df: pd.DataFrame, official_df: pd.DataFrame) -> p
     merged_df = pd.merge(model_df, official_df, on='hpo_id', how='inner')
     for metric in SentenceSimilarity:
         merged_df[str(metric)] = merged_df.apply(
-            lambda row: metric.evaluate(row['reference'], row['translation']),
+            lambda row: metric.evaluate(row['reference'], row['candidate']),
             axis=1)
 
     return merged_df
