@@ -43,7 +43,8 @@ class SentenceSimilarity(Enum):
                 return round(results["score"], 1)
 
             case SentenceSimilarity.TER:
-                score = ter(reference, candidate)[0].item()
+                result = ter([reference], [candidate])
+                score = result[0].item() * 100
                 return round(100 - score, 1)
 
             case SentenceSimilarity.SEMANTIC_SIMILARITY:

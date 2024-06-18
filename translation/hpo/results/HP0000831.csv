@@ -1,0 +1,5 @@
+hpo_id,english,candidate,reference,simple,sacrebleu,`ter`,semsim
+HP:0000831,Insulin-resistant diabetes mellitus,Diabetes mellitus resistente a la insulina,Diabetes mellitus resistente a insulina,0,53.7,83.3,99.9
+HP:0000857,Neonatal insulin-dependent diabetes mellitus,Diabetes mellitus insulinodependiente neonatal,Diabetes mellitus neonatal insulino-dependiente,0,21.4,50.0,99.4
+HP:0000877,Insulin-resistant diabetes mellitus at puberty,Diabetes mellitus resistente a la insulina en la pubertad,Diabetes mellitus resistente a insulina en la pubertad,0,59.7,88.9,100.0
+HP:0008255,Transient neonatal diabetes mellitus,Diabetes mellitus neonatal transitoria,Diabetes mellitus neonatal transitoria,1,100.0,100.0,100.0
